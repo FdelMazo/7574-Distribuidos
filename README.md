@@ -89,7 +89,9 @@ más que docker/docker-compose para correr el proyecto)
 
 El alumno debe forkear el presente repositorio en su cuenta de Github personal y crear un branch
 por cada uno de los ejercicios que se encuentran a continuación con su correspondiente implementación.
-Se recomienda que el alumno realize un fork privado del repositorio.
+
+Se recomienda que el alumno realize un fork privado del repositorio. Para realizar un fork privado,
+se duplicar el repositorio sobre un repositorio privado ya creado. El [siguientes documento](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/duplicating-a-repository) explica como realizar esto.
 
 ## Ejercicio N°1:
 Modificar la definición del docker-compose para agregar un nuevo cliente al proyecto.
