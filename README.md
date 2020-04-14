@@ -93,7 +93,7 @@ El alumno debe forkear el presente repositorio en su cuenta de Github personal y
 por cada uno de los ejercicios que se encuentran a continuación con su correspondiente implementación.
 
 Se recomienda que el alumno realize un fork privado del repositorio. Para realizar un fork privado,
-se debe duplicar el repositorio sobre un repositorio privado ya creado. El [siguientes documento](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/duplicating-a-repository) explica como realizar esto.
+se debe duplicar el repositorio sobre un repositorio privado ya creado. El [siguiente documento](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/duplicating-a-repository) explica como realizar esto.
 
 ## Ejercicio N°1:
 Modificar la definición del docker-compose para agregar un nuevo cliente al proyecto.
@@ -116,7 +116,7 @@ y esperar recibir el mismo mensaje enviado.
 Netcat no debe ser instalado en la maquina y no se puede exponer puertos del
 servidor para realizar la comunicación. (Hint: docker network)
 
-## Ejercicio N°4:
+## Ejercicio N°4 (Opcional):
 Modificar el servidor actual para que el mismo permita procesar mensajes y aceptar nuevas
 conexiones en paralelo.
 
