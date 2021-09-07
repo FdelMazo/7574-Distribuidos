@@ -103,10 +103,9 @@ Definir un script (en el lenguaje deseado) que permita crear una definición de
 docker-compose con cantidad de clientes N.
 
 ## Ejercicio N°2:
-Modificar el cliente y el servidor para lograr que la configuración de ambas
-aplicaciones sea leída tanto de variables de ambiente como de un archivo de configuración.
-La configuración a través de archivo debe ser _injectada_ al ejemplo y persistida afuera
-del mismo. (Hint: docker volumes)
+Modificar el cliente y el servidor para lograr que realizar cambios en el archivo de configuración
+no requiera un nuevo build de las imágenes de Docker para que los mismos sean efectivos. La configuración a 
+través del archivo debe ser _injectada_ al ejemplo y persistida afuera del mismo. (Hint: docker volumes)
 
 ## Ejercicio N°3:
 Crear un script que permita testear el correcto funcionamiento del servidor utilizando el
@@ -116,11 +115,17 @@ y esperar recibir el mismo mensaje enviado.
 Netcat no debe ser instalado en la maquina y no se puede exponer puertos del
 servidor para realizar la comunicación. (Hint: docker network)
 
-## Ejercicio N°4 (Opcional):
+## Ejercicio N°4:
+Modificar cliente o servidor (no es necesario modificar ambos) para que el programa termine 
+de forma gracefully al recibir la signal SIGTERM. Terminar la aplicación de
+forma gracefully implica que todos los sockets y threads/procesos de la aplicación deben 
+cerrarse/joinearse antes que el thread de la aplicación principal muera. Loguear mensajes 
+en el cierre de cada recurso.(Hint: Verificar que hace el flag -t utilizado en comando docker-compose-down)
+
+## Ejercicio N°5 (Opcional):
 Modificar el servidor actual para que el mismo permita procesar mensajes y aceptar nuevas
 conexiones en paralelo.
 
 El alumno puede elegir el lenguaje en el cual desarrollar el nuevo código del servidor. Si el
 alumno desea realizar las modificaciones en Python, 
 [tener en cuenta las limitaciones del lenguaje](https://wiki.python.org/moin/GlobalInterpreterLock).
-
