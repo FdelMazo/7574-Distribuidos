@@ -27,11 +27,7 @@ services:
     depends_on:
       - server
 
-  client2: 
-    <<: *client
-    container_name: client2
-    environment:
-      - CLI_ID=2
+  ### Append to me, programatically! (probably, with sed)
 
 networks:
   testing_net:

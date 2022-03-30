@@ -2,6 +2,7 @@ SHELL := /bin/bash
 PWD := $(shell pwd)
 
 GIT_REMOTE = github.com/7574-sistemas-distribuidos/docker-compose-init
+CLIENTS=1
 
 default: build
 
@@ -26,12 +27,37 @@ docker-image:
 .PHONY: docker-image
 
 docker-compose-up: docker-image
-	docker-compose -f docker-compose-dev.yaml up -d --build
+	# Ejemplo: corriendo `make CLIENTS=5 docker-compose-up` se crean 5 clientes!
+	@#
+	@# Qué esta pasando acá? Usando los anchors de yaml vimos que, con solo 4 lineas podemos definir un cliente nuevo:
+	@# ```
+	@# clientX:
+	@#   <<: *client
+	@#   container_name: clientX // incluso esta la podríamos ahorrar pero ya fue...
+	@#   environment:
+	@#     - CLI_ID=X
+	@# ```
+	@# Entonces, primero buscamos un ancla en nuestro archivo: el triple ### donde vamos a appendear cosas
+	@# Después, appendeamos N veces esas 4 lineas
+	@# Después pulimos ese string enorme, reemplazando tabs, espacios y newlines (porque yaml es molesto y la indentación es parte de la especificación...)
+	@# Y finalmente le pasamos el choclo enorme que acabamos de hacer, por stdin, a docker-compose up
+	@# Es trucho, feo, malo, y con jinja o cualquier manera de hacer templates salía mas prolijo, pero funciona!
+
+	@for ((i=2; i<=$(CLIENTS); i++)) ; do      \
+        CLIENTSTR=$$CLIENTSTR"\tclient$$i:\n \
+		\t\t<<: *client\n \
+		\t\tcontainer_name: client$$i\n \
+		\t\tenvironment:\n \
+		\t\t\t- CLI_ID=$$i\n\n" ; done && \
+    sed '/###/r'<(echo -e $$CLIENTSTR | sed 's/\t/  /g') docker-compose-dev.yaml | docker-compose -f - up -d --build
+
 .PHONY: docker-compose-up
 
 docker-compose-down:
 	docker-compose -f docker-compose-dev.yaml stop -t 1
-	docker-compose -f docker-compose-dev.yaml down
+	# por qué --remove-orphans?
+	# porque si vamos a agregar clientes "en runtime"... entonces a la hora de tirarlos abajo no vamos a tener manera de saber a quienes matar!
+	docker-compose -f docker-compose-dev.yaml down --remove-orphans
 .PHONY: docker-compose-down
 
 docker-compose-logs:
