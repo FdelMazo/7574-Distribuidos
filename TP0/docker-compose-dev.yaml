@@ -12,7 +12,8 @@ services:
     networks:
       - testing_net
 
-  client1:
+  # https://stackoverflow.com/a/69824975
+  client1: &client
     container_name: client1
     image: client:latest
     entrypoint: /client
@@ -25,6 +26,12 @@ services:
       - testing_net
     depends_on:
       - server
+
+  client2: 
+    <<: *client
+    container_name: client2
+    environment:
+      - CLI_ID=2
 
 networks:
   testing_net:
