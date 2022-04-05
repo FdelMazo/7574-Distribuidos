@@ -53,6 +53,11 @@ docker-compose-up: docker-image
 
 .PHONY: docker-compose-up
 
+docker-compose-server-test:
+	docker build -f ./nc-test/Dockerfile -t "nc-test:latest" .
+	docker-compose -f docker-compose-dev.yaml run nc-test -d --build
+.PHONY: docker-compose-server-test
+
 docker-compose-down:
 	docker-compose -f docker-compose-dev.yaml stop -t 1
 	# por qué --remove-orphans?

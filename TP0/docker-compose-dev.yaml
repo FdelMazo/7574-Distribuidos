@@ -14,6 +14,17 @@ services:
     volumes:
       - ./server/config:/config:ro
 
+  nc-test:
+    container_name: nc-test
+    image: nc-test:latest
+    entrypoint: /bin/sh /test.sh
+    networks:
+      - testing_net
+    profiles:
+      - test
+    depends_on:
+      - server
+
   # https://stackoverflow.com/a/69824975
   client1: &client
     container_name: client1
