@@ -1,6 +1,6 @@
 import socket
 import logging
-
+import threading
 
 class Server:
     def __init__(self, port, listen_backlog):
@@ -19,10 +19,16 @@ class Server:
         finishes, servers starts to accept new connections again
         """
 
+        threads = []
         while self.running:
             client_sock = self.__accept_new_connection()
             if not client_sock: break
-            self.__handle_client_connection(client_sock)
+            thread = threading.Thread(target = self.__handle_client_connection, args=(client_sock,))
+            threads.append(thread)
+            thread.start()
+
+        logging.info("Shutting down (connection threads)")
+        for t in threads: t.join()
 
     def __handle_client_connection(self, client_sock):
         """
@@ -60,7 +66,7 @@ class Server:
         return c
 
     def shutdown(self):
-        logging.info("Shutting down")
+        logging.info("Shutting down (socket)")
         self.running = False
         self._server_socket.shutdown(socket.SHUT_RDWR)
         self._server_socket.close()
