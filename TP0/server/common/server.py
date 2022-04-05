@@ -1,6 +1,6 @@
 import socket
 import logging
-import threading
+import multiprocessing
 
 class Server:
     def __init__(self, port, listen_backlog):
@@ -19,16 +19,16 @@ class Server:
         finishes, servers starts to accept new connections again
         """
 
-        threads = []
-        while self.running:
-            client_sock = self.__accept_new_connection()
-            if not client_sock: break
-            thread = threading.Thread(target = self.__handle_client_connection, args=(client_sock,))
-            threads.append(thread)
-            thread.start()
+        processes = []
+        with multiprocessing.Pool(None) as p:
+            while self.running:
+                client_sock = self.__accept_new_connection()
+                if not client_sock: break
+                process = multiprocessing.Process(target = self.__handle_client_connection, args=(client_sock,))
+                process.start()
 
-        logging.info("Shutting down (connection threads)")
-        for t in threads: t.join()
+        logging.info("Shutting down (connection processes)")
+        for p in processes: p.join()
 
     def __handle_client_connection(self, client_sock):
         """
