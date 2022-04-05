@@ -11,6 +11,8 @@ services:
       - LOGGING_LEVEL=DEBUG
     networks:
       - testing_net
+    volumes:
+      - ./server/config:/config:ro
 
   # https://stackoverflow.com/a/69824975
   client1: &client
@@ -26,6 +28,8 @@ services:
       - testing_net
     depends_on:
       - server
+    volumes:
+      - ./client/config:/build/config:ro
 
   ### Append to me, programatically! (probably, with sed)
 
