@@ -23,7 +23,7 @@ class Server:
         with multiprocessing.Pool(None) as p:
             while self.running:
                 client_sock = self.__accept_new_connection()
-                if not client_sock: break
+                if not self.running: break
                 process = multiprocessing.Process(target = self.__handle_client_connection, args=(client_sock,))
                 process.start()
 
@@ -61,7 +61,7 @@ class Server:
         try:
             c, addr = self._server_socket.accept()
         except OSError:
-            return None
+            return
         logging.info('Got connection from {}'.format(addr))
         return c
 
