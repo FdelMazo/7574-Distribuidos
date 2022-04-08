@@ -20,12 +20,14 @@ class Server:
         """
 
         processes = []
-        with multiprocessing.Pool(None) as p:
-            while self.running:
-                client_sock = self.__accept_new_connection()
-                if not self.running: break
-                process = multiprocessing.Process(target = self.__handle_client_connection, args=(client_sock,))
-                process.start()
+        # This is vulnerable to a DDOS...
+        # The correct way would be to have all of this in a process pool!
+        # (idk how to do that...)
+        while self.running:
+            client_sock = self.__accept_new_connection()
+            if not self.running: break
+            process = multiprocessing.Process(target = self.__handle_client_connection, args=(client_sock,))
+            process.start()
 
         logging.info("Shutting down (connection processes)")
         for p in processes: p.join()
