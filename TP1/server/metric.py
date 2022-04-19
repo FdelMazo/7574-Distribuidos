@@ -5,13 +5,13 @@ class Metric:
     def get(self):
         pass
 
-    def put(self):
+    def insert(self, value):
         pass
 
-    def get_between(self):
+    def get_between(self, from_date, to_date):
         pass
 
-    def aggregate(self, operation):
+    def aggregate(self, aggregate_op, aggregate_secs, from_date, to_date):
         pass
 
     def avg(self):

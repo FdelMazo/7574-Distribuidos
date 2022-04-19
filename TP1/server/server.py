@@ -1,6 +1,7 @@
 import socket
 import logging
 import threading
+from metric import Metric
 
 
 class Server:
@@ -27,14 +28,29 @@ class Server:
 
     def handle_client(self, client_sock):
         try:
-            msg = client_sock.recv(1024).rstrip().decode("utf-8")
-            command = msg.split()[0]
+            msg = client_sock.recv(1024).rstrip().decode("utf-8").split()
+            command = msg[0]
             if command == "LOG":
-                print("logging")
+                metric_id, metric_value = msg[1], msg[2]
+                m = Metric(metric_id)
+                m.insert(metric_value)
             elif command == "QUERY":
-                print("querying")
+                metric_id, aggregate_op, aggregate_secs = msg[1], msg[2], msg[3]
+                from_date = msg[4] if len(msg) > 4 else None
+                to_date = msg[5] if len(msg) > 5 else None
+
+                m = Metric(metric_id)
+                m.aggregate(
+                    metric_value, aggregate_op, aggregate_secs, from_date, to_date
+                )
             elif command == "NEW-ALERT":
-                print("setting up new alert")
+                metric_id, aggregate_op, aggregate_secs, limit = (
+                    msg[1],
+                    msg[2],
+                    msg[3],
+                    msg[4],
+                )
+                # ???
             else:
                 logging.info(
                     "Message received from connection {}. Msg: {}".format(
