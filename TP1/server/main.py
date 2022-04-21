@@ -1,8 +1,11 @@
 import logging
+import os
 import signal
 from configparser import ConfigParser
 from server import Server
 from alert_monitor import AlertMonitor
+from metrics_manager import MetricsManager
+from file_manager import FileManager
 import multiprocessing
 
 
@@ -17,25 +20,25 @@ def main():
     config.read("./config.ini")
 
     port = int(config["DEFAULT"]["server_port"])
-    listen_backlog = int(config["DEFAULT"]["server_listen_backlog"])
 
-    server = Server(port, listen_backlog)
-    server_process = multiprocessing.Process(target=server.run)
+    process_manager_lock = multiprocessing.Manager().Lock()
+    file_manager = FileManager(process_manager_lock)
+    metrics_manager = MetricsManager(file_manager)
 
-    alert_monitor = AlertMonitor()
+    alert_monitor = AlertMonitor(metrics_manager)
     alert_monitor_process = multiprocessing.Process(target=alert_monitor.run)
+
+    server = Server(port, metrics_manager)
 
     def shutdown():
         logging.info("Shutting Down")
         server.shutdown()
         alert_monitor.shutdown()
-        server_process.join()
         alert_monitor_process.join()
 
     signal.signal(signal.SIGTERM, lambda _n, _f: shutdown())
-
-    server_process.start()
     alert_monitor_process.start()
+    server.run()
 
 
 if __name__ == "__main__":

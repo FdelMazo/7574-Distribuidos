@@ -13,7 +13,8 @@ class _Alert:
 
 
 class AlertMonitor:
-    def __init__(self):
+    def __init__(self, metrics_manager):
+        self.metrics_manager = metrics_manager
         self.running = True
 
     def run(self):

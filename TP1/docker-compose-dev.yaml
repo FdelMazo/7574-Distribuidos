@@ -6,6 +6,7 @@ services:
       - testing_net
     volumes:
       - ./config.ini:/config.ini:ro
+      - ./logs:/logs
 
   client:
     image: client:latest
