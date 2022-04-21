@@ -1,5 +1,6 @@
-import multiprocessing
 import os
+
+from RWLock import RWLock
 
 
 class FileManager:
@@ -10,16 +11,17 @@ class FileManager:
     def get_lock(self, lock_name):
         with self.locks_lock:
             if lock_name not in self.locks:
-                self.locks[lock_name] = multiprocessing.Lock()
+                self.locks[lock_name] = RWLock()
             return self.locks[lock_name]
 
     def get(self):
         pass
 
     def append_line(self, filename, line):
-        with self.get_lock(filename):
-            with open(os.path.join("/logs", filename), "a") as f:
-                f.write(line)
+        self.get_lock(filename).acquire_write()
+        with open(os.path.join("/logs", filename), "a") as f:
+            f.write(line)
+        self.get_lock(filename).release_write()
 
     def get_between(self, from_date, to_date):
         pass
