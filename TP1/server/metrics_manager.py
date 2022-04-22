@@ -1,11 +1,20 @@
 from statistics import mean
 from datetime import datetime, time
+from enum import Enum
+
+
+class AggregateOp(Enum):
+    AVG = "AVG"
+    MAX = "MAX"
+    MIN = "MIN"
+    COUNT = "COUNT"
+
 
 operations = {
-    "AVG": mean,
-    "MIN": min,
-    "MAX": max,
-    "COUNT": len,
+    AggregateOp.MIN: min,
+    AggregateOp.AVG: mean,
+    AggregateOp.MAX: max,
+    AggregateOp.COUNT: len,
 }
 
 

@@ -27,9 +27,9 @@ class AlertMonitor:
                     aggregations = self.metrics_manager.aggregate(
                         metric_id, aggregate_op, aggregate_secs
                     )
-                    if any([a > limit for a in aggregations]):
+                    if any([(a > limit) for a in aggregations]):
                         logging.info(
-                            f"ALERT {metric_id}: {aggregate_op} is over {limit}"
+                            f"ALERT {metric_id}: {aggregate_op.value} is over {limit}"
                         )
 
     def shutdown(self):
