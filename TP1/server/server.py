@@ -5,8 +5,9 @@ import logging
 
 
 class Server:
-    def __init__(self, port, metrics_manager):
+    def __init__(self, port, metrics_manager, alert_monitor):
         self.metrics_manager = metrics_manager
+        self.alert_monitor = alert_monitor
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_socket.bind(("", port))
         self._server_socket.listen()
@@ -30,6 +31,7 @@ class Server:
                 metric_id, metric_value = msg[1], msg[2]
                 self.metrics_manager.insert(metric_id, metric_value, time)
                 response = "Metric Inserted"
+
             elif command == "QUERY":
                 metric_id, aggregate_op, aggregate_secs = msg[1], msg[2], int(msg[3])
                 from_date = datetime.fromisoformat(msg[4]) if len(msg) > 4 else None
@@ -41,12 +43,16 @@ class Server:
                     from_date,
                     to_date,
                 )
+
             elif command == "NEW-ALERT":
                 metric_id, aggregate_op, aggregate_secs, limit = (
                     msg[1],
                     msg[2],
-                    msg[3],
-                    msg[4],
+                    int(msg[3]),
+                    float(msg[4]),
+                )
+                self.alert_monitor.add_alert(
+                    metric_id, aggregate_op, aggregate_secs, limit
                 )
             else:
                 logging.info(
@@ -56,7 +62,7 @@ class Server:
                 )
             client_sock.send(f"200 {response}".encode("utf-8"))
         except OSError:
-            logging.info("Error while reading socket {}".format(client_sock))
+            logging.info(f"Error while reading socket {client_sock}")
         finally:
             client_sock.close()
 

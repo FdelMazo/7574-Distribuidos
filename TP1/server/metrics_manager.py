@@ -37,7 +37,9 @@ class MetricsManager:
         lines = self.file_manager.get_lines(filename, from_date_iso, to_date_iso)
         return map(self.from_line, lines)
 
-    def aggregate(self, metric_id, aggregate_op, aggregate_secs, from_date, to_date):
+    def aggregate(
+        self, metric_id, aggregate_op, aggregate_secs, from_date=None, to_date=None
+    ):
         metrics = self.get(metric_id, from_date, to_date)
         grouped_values = self.group_values_by_secs(metrics, aggregate_secs)
         aggregate_op = operations[aggregate_op]
