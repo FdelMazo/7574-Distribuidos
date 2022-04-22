@@ -1,11 +1,13 @@
+import datetime
 import time
 import logging
 
 
 class AlertMonitor:
     """Our alert monitor will be responsible for monitoring the metrics.
-    It runs a loop on it's own process that will check the metrics every N seconds.
-    If a metric goes over the limit, we log an alert."""
+    It runs a loop on it's own process that will check the metrics every N
+    seconds. That means that if the stats received in the last N seconds go over
+    a limit, we alert."""
 
     def __init__(self, metrics_manager, alerts):
         """Keep in mind, the alerts dict must be thread safe: it will be shared between processes!
@@ -41,21 +43,31 @@ class AlertMonitor:
     def run(self):
         """Run our alert monitor loop
         We wait for N seconds,
-          then aggregate all of the metrics in our dictionary
-          and if any of our aggregations goes above the limit,
-          we signal our alert.
-        This loop will stop only if we call shutdown()"""
+          then, according to our alert rules in our dict, we aggregate all of
+          the metrics received since our last check and if any of our
+          aggregations goes above the limit, we signal our alert.
+
+        (Instead of checking against the last N seconds of metrics, we check
+        against our last check done. This is to include every metric received,
+        instead of depending on being fast enough not to receive any metric
+        *while* we were processing an alert)
+
+        This loop will stop only if we call shut down the alert monitor"""
+
+        # Our first window check is from 5 seconds ago until now
+        last_check = datetime.datetime.now() - datetime.timedelta(seconds=5)
         while self.running:
             time.sleep(5)
             for metric_id, metric_alerts in self.alerts.items():
                 for (aggregate_op, aggregate_secs, limit) in metric_alerts:
                     aggregations = self.metrics_manager.aggregate(
-                        metric_id, aggregate_op, aggregate_secs
+                        metric_id, aggregate_op, aggregate_secs, last_check
                     )
                     if any([(a > limit) for a in aggregations]):
                         logging.info(
                             f"ALERT {metric_id}: {aggregate_op.value} is over {limit}"
                         )
+                last_check = datetime.datetime.now()
 
     def shutdown(self):
         """Stop our alert monitor loop"""
