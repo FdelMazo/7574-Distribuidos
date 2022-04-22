@@ -1,3 +1,4 @@
+from datetime import datetime
 import multiprocessing
 import socket
 import logging
@@ -22,15 +23,19 @@ class Server:
     def handle_client(self, client_sock):
         try:
             msg = client_sock.recv(1024).rstrip().decode("utf-8").split()
-            print(f"HANDLING {msg}")
             command = msg[0]
+            time = datetime.now()
+            timestamp = datetime.timestamp(time)
             if command == "LOG":
                 metric_id, metric_value = msg[1], msg[2]
-                self.metrics_manager.insert(metric_id, metric_value)
+                self.metrics_manager.insert(metric_id, metric_value, timestamp)
             elif command == "QUERY":
-                metric_id, aggregate_op, aggregate_secs = msg[1], msg[2], msg[3]
+                metric_id, aggregate_op, aggregate_secs = msg[1], msg[2], int(msg[3])
                 from_date = msg[4] if len(msg) > 4 else None
                 to_date = msg[5] if len(msg) > 5 else None
+                self.metrics_manager.aggregate(
+                    metric_id, aggregate_op, aggregate_secs, from_date, to_date
+                )
             elif command == "NEW-ALERT":
                 metric_id, aggregate_op, aggregate_secs, limit = (
                     msg[1],

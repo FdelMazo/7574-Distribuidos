@@ -1,5 +1,7 @@
 from configparser import ConfigParser
+import itertools
 import socket
+import time
 import psutil
 
 
@@ -29,7 +31,26 @@ def main():
         response = conn.recv(1024).rstrip().decode("utf-8")
         status_code = response.split()[0]
         if status_code != "200":
-            print(f"Error while sending metric {metric_id}: {response}")
+            print(f"Error while sending log {query}: {response}")
+
+        conn.shutdown(socket.SHUT_RDWR)
+        conn.close()
+
+    # We now have lots of metrics, let's wait for them to arrive and then query them
+    time.sleep(5)
+    operations = ["AVG", "MIN", "MAX", "COUNT"]
+    for metric_id, aggregate_op in itertools.product(stats, operations):
+        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        conn.connect((server_alias, server_port))
+
+        aggregate_secs = 5
+        query = f"QUERY {metric_id} {aggregate_op} {aggregate_secs}\n"
+        conn.send(query.encode("utf-8"))
+
+        response = conn.recv(1024).rstrip().decode("utf-8")
+        status_code = response.split()[0]
+        if status_code != "200":
+            print(f"Error while sending query {query}: {response}")
 
         conn.shutdown(socket.SHUT_RDWR)
         conn.close()

@@ -23,6 +23,13 @@ class FileManager:
             f.write(line)
         self.get_lock(filename).release_write()
 
+    def get_lines(self, filename, start_timestamp=None, end_timestamp=None):
+        self.get_lock(filename).acquire_read()
+        with open(os.path.join("/logs", filename)) as f:
+            lines = f.readlines()
+        self.get_lock(filename).release_read()
+        return lines
+
     def get_between(self, from_date, to_date):
         pass
 
