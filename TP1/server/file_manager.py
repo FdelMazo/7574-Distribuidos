@@ -14,6 +14,9 @@ class FileManager:
                 self.locks[lock_name] = RWLock()
             return self.locks[lock_name]
 
+    def exists(self, filename):
+        return os.path.isfile(os.path.join("/logs", filename))
+
     def append_line(self, filename, line):
         self.get_lock(filename).acquire_write()
         with open(os.path.join("/logs", filename), "a") as f:

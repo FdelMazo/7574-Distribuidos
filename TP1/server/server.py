@@ -76,13 +76,17 @@ class Server:
     def apply_command(self, command, parameters):
         if command == Command.LOG:
             self.metrics_manager.insert(*parameters)
-            return (HTTPStatus.OK.value, "Metric Inserted")
+            return (HTTPStatus.CREATED.value, "Metric Inserted")
         elif command == Command.AGGREGATE:
-            self.metrics_manager.aggregate(*parameters)
-            return (HTTPStatus.OK.value, "Aggregations Made")
+            aggregations = self.metrics_manager.aggregate(*parameters)
+            if not aggregations:
+                return (HTTPStatus.NOT_FOUND.value, "Metric Not Found")
+            return (HTTPStatus.OK.value, aggregations)
         elif command == Command.NEW_ALERT:
-            self.alert_monitor.add_alert(*parameters)
-            return (HTTPStatus.OK.value, "Alert Added")
+            added = self.alert_monitor.add_alert(*parameters)
+            if not added:
+                return (HTTPStatus.NOT_FOUND.value, "Metric Not Found")
+            return (HTTPStatus.CREATED.value, "Alert Added")
 
     def parse_msg(self, msg, time):
         try:

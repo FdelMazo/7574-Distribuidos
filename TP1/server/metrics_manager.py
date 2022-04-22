@@ -34,6 +34,10 @@ class MetricsManager:
         time = datetime.fromisoformat(time_iso)
         return (metric_id, float(value), time)
 
+    def exists(self, metric_id):
+        filename = self.filename(metric_id)
+        return self.file_manager.exists(filename)
+
     def insert(self, metric_id, value, time):
         filename = self.filename(metric_id)
         line = self.to_line(metric_id, value, time)
@@ -49,6 +53,8 @@ class MetricsManager:
     def aggregate(
         self, metric_id, aggregate_op, aggregate_secs, from_date=None, to_date=None
     ):
+        if not self.exists(metric_id):
+            return None
         metrics = self.get(metric_id, from_date, to_date)
         grouped_values = self.group_values_by_secs(metrics, aggregate_secs)
         aggregate_op = operations[aggregate_op]

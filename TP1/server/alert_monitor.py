@@ -9,6 +9,8 @@ class AlertMonitor:
         self.running = True
 
     def add_alert(self, metric_id, aggregate_op, aggregate_secs, limit):
+        if not self.metrics_manager.exists(metric_id):
+            return False
         if metric_id in self.alerts:
             # Keep in mind, one can't simply append to the set inside the dict
             # We need to reassign the set to key
@@ -18,6 +20,7 @@ class AlertMonitor:
             self.alerts[metric_id] = s
         else:
             self.alerts[metric_id] = {(aggregate_op, aggregate_secs, limit)}
+        return True
 
     def run(self):
         while self.running:

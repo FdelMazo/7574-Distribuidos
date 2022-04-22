@@ -33,6 +33,7 @@ def main():
     rounded_stats = {k: round(v[0], 2) for k, v in stats.items()}
 
     # Let's set up some alerts before logging our metrics
+    # This will only work on already existing metrics (it won't work on the very first run of our server)
     operations = ["AVG", "MAX"]
     for metric_id, aggregate_op in itertools.product(stats, operations):
         limit = stats[metric_id][1]
