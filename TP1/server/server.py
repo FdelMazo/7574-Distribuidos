@@ -25,16 +25,21 @@ class Server:
             msg = client_sock.recv(1024).rstrip().decode("utf-8").split()
             command = msg[0]
             time = datetime.now()
-            timestamp = datetime.timestamp(time)
+            response = ""
             if command == "LOG":
                 metric_id, metric_value = msg[1], msg[2]
-                self.metrics_manager.insert(metric_id, metric_value, timestamp)
+                self.metrics_manager.insert(metric_id, metric_value, time)
+                response = "Metric Inserted"
             elif command == "QUERY":
                 metric_id, aggregate_op, aggregate_secs = msg[1], msg[2], int(msg[3])
-                from_date = msg[4] if len(msg) > 4 else None
-                to_date = msg[5] if len(msg) > 5 else None
-                self.metrics_manager.aggregate(
-                    metric_id, aggregate_op, aggregate_secs, from_date, to_date
+                from_date = datetime.fromisoformat(msg[4]) if len(msg) > 4 else None
+                to_date = datetime.fromisoformat(msg[5]) if len(msg) > 5 else None
+                response = self.metrics_manager.aggregate(
+                    metric_id,
+                    aggregate_op,
+                    aggregate_secs,
+                    from_date,
+                    to_date,
                 )
             elif command == "NEW-ALERT":
                 metric_id, aggregate_op, aggregate_secs, limit = (
@@ -49,7 +54,7 @@ class Server:
                         client_sock.getpeername(), msg
                     )
                 )
-            client_sock.send("200 Metric Inserted".encode("utf-8"))
+            client_sock.send(f"200 {response}".encode("utf-8"))
         except OSError:
             logging.info("Error while reading socket {}".format(client_sock))
         finally:

@@ -48,6 +48,7 @@ def main():
         conn.send(query.encode("utf-8"))
 
         response = conn.recv(1024).rstrip().decode("utf-8")
+        print(response)
         status_code = response.split()[0]
         if status_code != "200":
             print(f"Error while sending query {query}: {response}")
