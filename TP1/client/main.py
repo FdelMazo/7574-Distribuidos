@@ -6,6 +6,9 @@ import psutil
 
 
 def main():
+    """Simple client that get's some system metrics and logs them in our central server
+    Ideal for having multiple replicated clients and checking if any of them are behaving out of the ordinary"""
+
     config = ConfigParser()
     config.read("./config.ini")
     server_alias = config["DEFAULT"]["server_alias"]

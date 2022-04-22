@@ -22,6 +22,9 @@ descriptions = {
 
 
 class Server:
+    """A multiprocessing TCP server which handles each client on it's own process,
+    receives it's commands, applies the actions, and replies to the client"""
+
     def __init__(self, port, metrics_manager, alert_monitor):
         self.metrics_manager = metrics_manager
         self.alert_monitor = alert_monitor
@@ -31,6 +34,7 @@ class Server:
         self.running = True
 
     def run(self):
+        """Listens for new clients until the server is shut down, and handles each client on a different process"""
         with multiprocessing.Pool(None) as pool:
             while self.running:
                 client_sock = self.accept()
@@ -39,6 +43,7 @@ class Server:
                 pool.apply(self.handle_client, args=((client_sock,)))
 
     def handle_client(self, client_sock):
+        """Handles a client: parse the command, apply it, reply!"""
         # We ask the time as soon as we get the message!
         time = datetime.now()
         try:
@@ -58,6 +63,8 @@ class Server:
             client_sock.close()
 
     def accept(self):
+        """Accepts a new client connection
+        If the socket is closed (due to server shutdown), returns None"""
         try:
             c, _addr = self._server_socket.accept()
         except OSError:
@@ -65,15 +72,18 @@ class Server:
         return c
 
     def shutdown(self):
-        logging.info("Shutting down (socket)")
+        """Shuts down the server"""
+        logging.info("Shutting Down: Server Socket")
         self.running = False
         self._server_socket.shutdown(socket.SHUT_RDWR)
         self._server_socket.close()
 
     def reply(self, client_sock, status_code, msg):
+        """Replies to the client with a status code and a message"""
         client_sock.send(f"{status_code} {msg}".encode("utf-8"))
 
     def apply_command(self, command, parameters):
+        """Applies the command with help of our metrics and alerts managers and returns a tuple with the status code and the response message"""
         if command == Command.LOG:
             self.metrics_manager.insert(*parameters)
             return (HTTPStatus.CREATED.value, "Metric Inserted")
@@ -89,6 +99,8 @@ class Server:
             return (HTTPStatus.CREATED.value, "Alert Added")
 
     def parse_msg(self, msg, time):
+        """Parses the message received and returns a tuple with the command and the parameters,
+        raises a ValueError if the message is invalid"""
         try:
             command = Command(msg[0])
         except ValueError:
