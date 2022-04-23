@@ -99,7 +99,7 @@ class Server:
             added = self.alert_monitor.add_alert(*parameters)
             if not added:
                 return (HTTPStatus.NOT_FOUND.value, "Metric Not Found")
-            return (HTTPStatus.CREATED.value, "Alert Added")
+            return (HTTPStatus.CREATED.value, "Alert Registered")
 
     def parse_msg(self, msg, time):
         """Parses the message received and returns a tuple with the command and the
