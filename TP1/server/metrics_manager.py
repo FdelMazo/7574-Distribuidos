@@ -29,10 +29,10 @@ class MetricsManager:
     def filename(self, metric_id):
         return os.path.join("/logs", f"{metric_id}.log")
 
-    def to_line(self, metric_id, value, time):
+    def to_line(self, metric_id, value, timestamp):
         """Receives a metric id, a value and the metric datetime object
         and returns a string where the time can be compared as a string (iso format)"""
-        time_iso = time.isoformat()
+        time_iso = timestamp.isoformat()
         return f"{time_iso} {metric_id} {value}\n"
 
     def from_line(self, line):
@@ -40,22 +40,22 @@ class MetricsManager:
         goes from the string representation of a metric, to one with the correct python
         types"""
         time_iso, metric_id, value = line.split()
-        time = datetime.fromisoformat(time_iso)
-        return (metric_id, float(value), time)
+        timestamp = datetime.fromisoformat(time_iso)
+        return (metric_id, float(value), timestamp)
 
     def exists(self, metric_id):
         """Checks if a metric exists in our log files"""
         filename = self.filename(metric_id)
         return self.file_manager.exists(filename)
 
-    def insert(self, metric_id, value, time):
+    def insert(self, metric_id, value, timestamp):
         """Inserts a metric into it's log file, and creates it if it doesn't exist"""
         filename = self.filename(metric_id)
-        line = self.to_line(metric_id, value, time)
+        line = self.to_line(metric_id, value, timestamp)
         self.file_manager.append_line(filename, line)
 
     def get(self, metric_id, from_date, to_date):
-        """Returns every metric triplet (id, value, time) of a given id,
+        """Returns every metric triplet (id, value, timestamp) of a given id,
         between two dates (inclusive)"""
         filename = self.filename(metric_id)
         from_date_iso = from_date.isoformat() if from_date else None
@@ -77,20 +77,20 @@ class MetricsManager:
         return list(map(aggregate_op, grouped_values))
 
     def group_values_by_secs(self, metrics, aggregate_secs):
-        """Receives a list of metrics and groups them in buckets of aggregate_secs 
+        """Receives a list of metrics and groups them in buckets of aggregate_secs
         seconds.
-        
+
         Returns a list of lists"""
         groups = []
         group = []
         current_time = None
-        for _id, metric_value, time in metrics:
+        for _id, metric_value, timestamp in metrics:
             if current_time is None:
-                current_time = time
+                current_time = timestamp
 
             # Even though some metrics may be in the same second,
             #   if our window is 0 we explicitly want to proccess all of them individually
-            time_ts = time.timestamp()
+            time_ts = timestamp.timestamp()
             current_time_ts = current_time.timestamp()
             if ((time_ts - current_time_ts) <= aggregate_secs) and aggregate_secs != 0:
                 group.append(metric_value)

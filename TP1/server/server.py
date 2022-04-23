@@ -46,11 +46,11 @@ class Server:
     def handle_client(self, client_sock):
         """Handles a client: parse the command, apply it, reply!"""
         # We ask the time as soon as we get the message!
-        time = datetime.now()
+        timestamp = datetime.now()
         try:
             msg = client_sock.recv(1024).rstrip().decode("utf-8").split()
             try:
-                (command, *parameters) = self.parse_msg(msg, time)
+                (command, *parameters) = self.parse_msg(msg, timestamp)
             except ValueError as e:
                 self.reply(
                     client_sock, HTTPStatus.BAD_REQUEST.value, f"Bad Request -- {e}"
@@ -101,7 +101,7 @@ class Server:
                 return (HTTPStatus.NOT_FOUND.value, "Metric Not Found")
             return (HTTPStatus.CREATED.value, "Alert Registered")
 
-    def parse_msg(self, msg, time):
+    def parse_msg(self, msg, timestamp):
         """Parses the message received and returns a tuple with the command and the
         parameters.
 
@@ -114,7 +114,7 @@ class Server:
         try:
             if command == Command.LOG:
                 metric_id, metric_value = msg[1], float(msg[2])
-                return (command, metric_id, metric_value, time)
+                return (command, metric_id, metric_value, timestamp)
             elif command == Command.AGGREGATE:
                 metric_id, aggregate_op, aggregate_secs = (
                     msg[1],
