@@ -54,6 +54,7 @@ class Server:
                 self.reply(
                     client_sock, HTTPStatus.BAD_REQUEST.value, f"Bad Request -- {e}"
                 )
+                return
 
             (status_code, body) = self.apply_command(command, parameters)
             self.reply(client_sock, status_code, body)
