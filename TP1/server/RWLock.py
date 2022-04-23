@@ -1,7 +1,8 @@
 import multiprocessing
 
-# Mostly taken from https://www.oreilly.com/library/view/python-cookbook/0596001673/ch06s04.html
-# with ideas to fix the writer starvation issue taken from https://stackoverflow.com/a/52794817
+# Mostly taken from:
+# - https://www.oreilly.com/library/view/python-cookbook/0596001673/ch06s04.html
+# - https://stackoverflow.com/a/52794817 (ideas to fix the writer starvation issue)
 # Adapted to use multiprocessing.Lock() instead of threading.Lock()
 
 

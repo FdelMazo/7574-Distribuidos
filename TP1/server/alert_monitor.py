@@ -5,13 +5,13 @@ import logging
 
 class AlertMonitor:
     """Our alert monitor will be responsible for monitoring the metrics.
-    It runs a loop on it's own process that will check the metrics every N
-    seconds. That means that if the stats received in the last N seconds go over
-    a limit, we alert."""
+
+    It runs a loop on it's own process that will check the metrics every N seconds. That
+    means that if the stats received in the last N seconds go over a limit, we alert."""
 
     def __init__(self, metrics_manager, alerts):
-        """Keep in mind, the alerts dict must be thread safe: it will be shared between processes!
-        the alert loop, and whatever process calls our add_alert method.
+        """Keep in mind, the alerts dict must be thread safe: it will be shared between
+        processes: the alert loop, and whatever process calls our add_alert method.
         (That's why instead of creating it we receive it!)"""
         self.metrics_manager = metrics_manager
         self.alerts = alerts
@@ -19,13 +19,16 @@ class AlertMonitor:
 
     def add_alert(self, metric_id, aggregate_op, aggregate_secs, limit):
         """Add an alert to our monitor
+
         Returns False if the metric to alert on doesn't exist.
+
         An alert on a metric id is a triplet consisting of:
         - the aggregation operator
         - the number of seconds to aggregate over
         - the limit to check against
-        Doesn't check if the specific alert (the triplet) already exists,
-          it simply ignores the request"""
+
+        Doesn't check if the specific alert (the triplet) already exists, it simply
+        ignores the request"""
         if not self.metrics_manager.exists(metric_id):
             return False
         if metric_id in self.alerts:
@@ -36,21 +39,23 @@ class AlertMonitor:
             s.add((aggregate_op, aggregate_secs, limit))
             self.alerts[metric_id] = s
         else:
-            # By using a set we avoid duplicates (and an already added alert will be ignored)
+            # By using a set we avoid duplicates
+            # (and an already added alert will be ignored)
             self.alerts[metric_id] = {(aggregate_op, aggregate_secs, limit)}
         return True
 
     def run(self):
         """Run our alert monitor loop
-        We wait for N seconds,
-          then, according to our alert rules in our dict, we aggregate all of
-          the metrics received since our last check and if any of our
-          aggregations goes above the limit, we signal our alert.
 
-        (Instead of checking against the last N seconds of metrics, we check
-        against our last check done. This is to include every metric received,
-        instead of depending on being fast enough not to receive any metric
-        *while* we were processing an alert)
+        We wait for N seconds,
+          then, according to our alert rules in our dict, we aggregate all of the
+          metrics received since our last check and if any of our aggregations goes
+          above the limit, we signal our alert.
+
+        (Instead of checking against the last N seconds of metrics, we check against our
+        last check done. This is to include every metric received, instead of depending
+        on being fast enough not to receive any metric *while* we were processing an
+        alert)
 
         This loop will stop only if we call shut down the alert monitor"""
 

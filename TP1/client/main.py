@@ -18,8 +18,13 @@ def get_stats():
 
 
 def main():
-    """Simple client that get's some system metrics and logs them in our central server
-    Ideal for having multiple replicated clients and checking if any of them are behaving out of the ordinary"""
+    """Simple client that get's some system metrics and logs them in our central server.
+
+    Ideal for having multiple replicated clients and checking if any of them are
+    behaving out of the ordinary.
+
+    It has a constant thread listening for user input, so that a user can send manual
+    queries to the central server (setting up alerts, aggregate the metrics, etc)."""
 
     config = ConfigParser()
     config.read("./config.ini")
@@ -45,7 +50,7 @@ def main():
 
     # Separate thread for manual queries
     def manual_query(is_user_attached):
-        input()  # Wait for any kind of input, to know there's a user on the other side
+        input()  # Wait for any kind of input before entering interactive mode
         is_user_attached.set()
         while True:
             query = input("QUERY: ")

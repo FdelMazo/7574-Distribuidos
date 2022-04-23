@@ -34,7 +34,8 @@ class Server:
         self.running = True
 
     def run(self):
-        """Listens for new clients until the server is shut down, and handles each client on a different process"""
+        """Listens for new clients until the server is shut down, and handles each
+        client on a different process"""
         with multiprocessing.Pool(None) as pool:
             while self.running:
                 client_sock = self.accept()
@@ -84,7 +85,8 @@ class Server:
         client_sock.send(f"{status_code} {msg}".encode("utf-8"))
 
     def apply_command(self, command, parameters):
-        """Applies the command with help of our metrics and alerts managers and returns a tuple with the status code and the response message"""
+        """Applies the command with help of our metrics and alerts managers and returns
+        a tuple with the status code and the response message"""
         if command == Command.LOG:
             self.metrics_manager.insert(*parameters)
             return (HTTPStatus.CREATED.value, "Metric Inserted")
@@ -100,7 +102,9 @@ class Server:
             return (HTTPStatus.CREATED.value, "Alert Added")
 
     def parse_msg(self, msg, time):
-        """Parses the message received and returns a tuple with the command and the parameters,
+        """Parses the message received and returns a tuple with the command and the
+        parameters.
+
         raises a ValueError if the message is invalid"""
         try:
             command = Command(msg[0])

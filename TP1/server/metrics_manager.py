@@ -20,7 +20,8 @@ operations = {
 
 
 class MetricsManager:
-    """A metrics manager where we store each metric in a separate logfile, handled by the file manager"""
+    """A metrics manager where we store each metric in a separate logfile, handled by
+    the file manager"""
 
     def __init__(self, file_manager):
         self.file_manager = file_manager
@@ -36,7 +37,8 @@ class MetricsManager:
 
     def from_line(self, line):
         """The inverse of to_line:
-        goes from the string representation of a metric, to one with the correct python types"""
+        goes from the string representation of a metric, to one with the correct python
+        types"""
         time_iso, metric_id, value = line.split()
         time = datetime.fromisoformat(time_iso)
         return (metric_id, float(value), time)
@@ -75,7 +77,9 @@ class MetricsManager:
         return list(map(aggregate_op, grouped_values))
 
     def group_values_by_secs(self, metrics, aggregate_secs):
-        """Receives a list of metrics and groups them in buckets of aggregate_secs seconds
+        """Receives a list of metrics and groups them in buckets of aggregate_secs 
+        seconds.
+        
         Returns a list of lists"""
         groups = []
         group = []
