@@ -16,6 +16,8 @@ services:
       - ./config.ini:/config.ini:ro
     depends_on:
       - server
+    stdin_open: true
+    tty: true
     deploy:
       mode: replicated
       replicas: ${CLIENT_REPLICAS:-1}

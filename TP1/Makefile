@@ -8,6 +8,10 @@ docker-image:
 	docker build -f ./client/Dockerfile -t "client:latest" .
 .PHONY: docker-image
 
+manual:
+	docker attach tp1_client_1
+.PHONY: manual
+
 up: docker-image
 	docker-compose -f docker-compose-dev.yaml up --detach
 .PHONY: up

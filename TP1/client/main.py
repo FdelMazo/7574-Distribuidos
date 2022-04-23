@@ -1,8 +1,20 @@
 from configparser import ConfigParser
-import itertools
+import datetime
 import socket
 import time
 import psutil
+import threading
+
+
+def get_stats():
+    return {
+        # https://psutil.readthedocs.io/en/latest/
+        "cpu_percent": psutil.cpu_percent(interval=1),
+        "cpu_freq_current": round(psutil.cpu_freq().current, 4),
+        "load_avg_lastminute": psutil.getloadavg()[0],
+        "memory_usage_percent": psutil.virtual_memory().percent,
+        "disk_usage_percent": psutil.disk_usage("/").percent,
+    }
 
 
 def main():
@@ -13,49 +25,46 @@ def main():
     config.read("./config.ini")
     server_alias = config["DEFAULT"]["server_alias"]
     server_port = int(config["DEFAULT"]["server_port"])
+    freq = int(config["DEFAULT"]["client_stats_frequency"]) or 10
+    is_user_attached = threading.Event()
 
-    def send_query(query):
+    def send_query(query, log):
+        if not query:
+            return
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((server_alias, server_port))
 
         conn.send(f"{query}\n".encode("utf-8"))
         response = conn.recv(1024).rstrip().decode("utf-8")
-        print(f"SEND {query}")
-        print(f"RECV {response}")
+        if log:
+            print(f"SEND -> {query}")
+        if log:
+            print(f"RECV -> {response}")
         conn.shutdown(socket.SHUT_RDWR)
         conn.close()
 
-    stats = {
-        # https://psutil.readthedocs.io/en/latest/
-        "cpu_percent": (psutil.cpu_percent(interval=1), 15),
-        "cpu_freq_current": (psutil.cpu_freq().current, 2),
-        "load_avg_lastminute": (psutil.getloadavg()[0], 3),
-        "memory_usage_percent": (psutil.virtual_memory().percent, 24),
-        "disk_usage_percent": (psutil.disk_usage("/").percent, 85),
-    }
-    rounded_stats = {k: round(v[0], 2) for k, v in stats.items()}
+    # Separate thread for manual queries
+    def manual_query(is_user_attached):
+        input()  # Wait for any kind of input, to know there's a user on the other side
+        is_user_attached.set()
+        while True:
+            query = input("QUERY: ")
+            send_query(query, True)
 
-    # Let's set up some alerts before logging our metrics
-    # This will only work on already existing metrics (it won't work on the very first run of our server)
-    operations = ["AVG", "MAX"]
-    for metric_id, aggregate_op in itertools.product(stats, operations):
-        limit = stats[metric_id][1]
-        aggregate_secs = 5
-        query = f"NEW-ALERT {metric_id} {aggregate_op} {aggregate_secs} {limit}"
-        send_query(query)
+    threading.Thread(target=manual_query, args=((is_user_attached,))).start()
+
+    time.sleep(1)
+    print(f"START CLIENT -> {datetime.datetime.now().isoformat()}")
 
     # Tell the world about our stats!
-    time.sleep(2)
-    for (metric_id, metric_value) in rounded_stats.items():
-        query = f"LOG {metric_id} {metric_value}"
-        send_query(query)
-
-    # We now have lots of metrics, let's wait for them to arrive and then query them
-    time.sleep(2)
-    for metric_id, aggregate_op in itertools.product(stats, operations):
-        aggregate_secs = 5
-        query = f"QUERY {metric_id} {aggregate_op} {aggregate_secs}"
-        send_query(query)
+    # Every freq seconds!
+    while True:
+        stats = get_stats()
+        log = not is_user_attached.is_set()
+        for (metric_id, metric_value) in stats.items():
+            query = f"LOG {metric_id} {metric_value}"
+            send_query(query, log)
+        time.sleep(freq)
 
 
 if __name__ == "__main__":
