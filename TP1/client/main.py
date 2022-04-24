@@ -51,15 +51,13 @@ def main():
     # Separate thread for manual queries
     def manual_query(is_user_attached):
         input()  # Wait for any kind of input before entering interactive mode
+        print(f"NOW -> {datetime.datetime.now().isoformat()}")
         is_user_attached.set()
         while True:
             query = input("QUERY: ")
             send_query(query, True)
 
     threading.Thread(target=manual_query, args=((is_user_attached,))).start()
-
-    time.sleep(1)
-    print(f"START CLIENT -> {datetime.datetime.now().isoformat()}")
 
     # Tell the world about our stats!
     # Every freq seconds!
