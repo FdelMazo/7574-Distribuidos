@@ -20,13 +20,14 @@ def main():
     config.read("./config.ini")
 
     port = int(config["DEFAULT"]["server_port"])
+    alert_freq = int(config["DEFAULT"]["server_alert_frequency"]) or 60
 
     process_manager_lock = multiprocessing.Manager().Lock()
     alerts = multiprocessing.Manager().dict()
     file_manager = FileManager(process_manager_lock)
     metrics_manager = MetricsManager(file_manager)
 
-    alert_monitor = AlertMonitor(metrics_manager, alerts)
+    alert_monitor = AlertMonitor(metrics_manager, alerts, alert_freq)
     alert_monitor_process = multiprocessing.Process(target=alert_monitor.run)
 
     server = Server(port, metrics_manager, alert_monitor)

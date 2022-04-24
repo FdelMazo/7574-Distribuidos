@@ -9,12 +9,13 @@ class AlertMonitor:
     It runs a loop on it's own process that will check the metrics every N seconds. That
     means that if the stats received in the last N seconds go over a limit, we alert."""
 
-    def __init__(self, metrics_manager, alerts):
+    def __init__(self, metrics_manager, alerts, alert_freq):
         """Keep in mind, the alerts dict must be thread safe: it will be shared between
         processes: the alert loop, and whatever process calls our add_alert method.
         (That's why instead of creating it we receive it!)"""
         self.metrics_manager = metrics_manager
         self.alerts = alerts
+        self.freq = alert_freq
         self.running = True
 
     def add_alert(self, metric_id, aggregate_op, aggregate_secs, limit):
@@ -59,10 +60,10 @@ class AlertMonitor:
 
         This loop will stop only if we call shut down the alert monitor"""
 
-        # Our first window check is from 5 seconds ago until now
-        last_check = datetime.datetime.now() - datetime.timedelta(seconds=5)
+        # Our first window check is from N seconds ago until now
+        last_check = datetime.datetime.now() - datetime.timedelta(seconds=self.freq)
         while self.running:
-            time.sleep(5)
+            time.sleep(self.freq)
             for metric_id, metric_alerts in self.alerts.items():
                 for (aggregate_op, aggregate_secs, limit) in metric_alerts:
                     aggregations = self.metrics_manager.aggregate(
