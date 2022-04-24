@@ -9,7 +9,15 @@ docker-image:
 .PHONY: docker-image
 
 manual:
-	docker attach tp1_client_1
+	@# heavily recommend to use rlwrap for this (`sudo apt install rlwrap`)
+	@# (rlwrap allows to use the up and down arrow keys to navigate through the history)
+	@if [ "$(shell which rlwrap)" ]; then\
+        echo "rlwrap --always-readline docker attach tp1_client_1";\
+		rlwrap --always-readline docker attach tp1_client_1;\
+	else\
+		echo "docker attach tp1_client_1";\
+		docker attach tp1_client_1;\
+    fi
 .PHONY: manual
 
 up: docker-image
