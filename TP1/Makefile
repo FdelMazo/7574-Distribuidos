@@ -13,9 +13,11 @@ manual:
 	@# (rlwrap allows to use the up and down arrow keys to navigate through the history)
 	@if [ "$(shell which rlwrap)" ]; then\
         echo "rlwrap --always-readline docker attach tp1_client_1";\
+        echo "Don't forget to press enter to enter interactive mode!";\
 		rlwrap --always-readline docker attach tp1_client_1;\
 	else\
 		echo "docker attach tp1_client_1";\
+        echo "Don't forget to press enter to enter interactive mode!";\
 		docker attach tp1_client_1;\
     fi
 .PHONY: manual
