@@ -4,6 +4,7 @@ import socket
 import logging
 from http import HTTPStatus
 from enum import Enum
+import os
 
 from metrics_manager import AggregateOp
 
@@ -36,12 +37,43 @@ class Server:
     def run(self):
         """Listens for new clients until the server is shut down, and handles each
         client on a different process"""
+
+        processes = []
         with multiprocessing.Pool(None) as pool:
             while self.running:
                 client_sock = self.accept()
                 if not self.running:
                     break
-                pool.apply(self.handle_client, args=((client_sock,)))
+
+                # On a server high load, we avoid creating a new process for the request
+                # We arbitrarily assume a high load means twice our cpu count
+                if len(pool._cache) > os.cpu_count() * 2:
+                    self.reply(
+                        client_sock,
+                        HTTPStatus.SERVICE_UNAVAILABLE.value,
+                        f"We're busy, try again later",
+                    )
+                    continue
+
+                # An async task which we .get() on a new process, so that we can keep
+                # listening for new clients while we handle the current one on the bg
+                response = pool.apply_async(self.handle_client, args=(client_sock,))
+                process = multiprocessing.Process(
+                    target=lambda r: r.get(), args=((response,))
+                )
+
+                # A little bit of garbage collection (clean up dead threads)
+                if len(processes) > os.cpu_count():
+                    processes = [p for p in processes if p.is_alive()]
+
+                processes.append(process)
+                process.start()
+
+            pool.close()
+            pool.join()
+
+        for p in processes:
+            p.join()
 
     def handle_client(self, client_sock):
         """Handles a client: parse the command, apply it, reply!"""
