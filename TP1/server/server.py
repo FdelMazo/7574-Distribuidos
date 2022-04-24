@@ -124,7 +124,7 @@ class Server:
             return (HTTPStatus.CREATED.value, "Metric Inserted")
         elif command == Command.AGGREGATE:
             aggregations = self.metrics_manager.aggregate(*parameters)
-            if not aggregations:
+            if aggregations == None:
                 return (HTTPStatus.NOT_FOUND.value, "Metric Not Found")
             return (HTTPStatus.OK.value, aggregations)
         elif command == Command.NEW_ALERT:
