@@ -46,7 +46,8 @@ class Server:
                     break
 
                 # On a server high load, we avoid creating a new process for the request
-                # We arbitrarily assume a high load means twice our cpu count
+                # We arbitrarily assume a high load means twice our cpu count (this
+                # could be a bad assumption... should it be parametrized?)
                 if len(pool._cache) > os.cpu_count() * 2:
                     self.reply(
                         client_sock,
