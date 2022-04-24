@@ -64,14 +64,17 @@ class Server:
 
                 # A little bit of garbage collection (clean up dead threads)
                 if len(processes) > os.cpu_count():
+                    logging.info("Cleaning old processes")
                     processes = [p for p in processes if p.is_alive()]
 
                 processes.append(process)
                 process.start()
 
+            logging.info("Shutting Down: Server Pool")
             pool.close()
             pool.join()
 
+        logging.info("Shutting Down: Hanging Processes")
         for p in processes:
             p.join()
 
