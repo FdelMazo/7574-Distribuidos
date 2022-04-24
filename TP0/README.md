@@ -1,3 +1,13 @@
+La entrega fue sobre ed10155346dcf984a6a2cca809a6c594ba634888. Correcciones de los docentes:
+
+    Ejercicio 1: Correcto.
+    Ejercicio 1.1: Correcto. Muy complejo hacer comandos de concatenación en Makefile. Es preferible utilizar una librería de templates como Jinja.
+    Ejercicio 2: Correcto. Está bien implementado el volume en docker-compose pero no era necesario mover los archivos de config dentro de otro directorio. Se podría haber bindeado los archivos individualmente, por nombre completo. Más aún, es necesario excluir los archivos del COPY que se realiza en el Dockerfile. Pensar que al realizar el COPY se invalida el caché cada vez que el archivo en cuestión se modifica y se incluye una copia dentro de la imagen. Esto no es necesario si el planteo es montar el file que puede recibir cambios en cualquier etapa del desarrollo.
+    Ejercicio 3: Con errores. El script utilizado para ejecutar el netcat tiene harcodeado el texto a enviar y el puerto. Estos datos deberían ser pasados por variables. Además, emplea un profile de test en docker-compose pero no lo especifica a la hora de ejecutar el docker-compose run dentro del makefile
+    Ejercicio 4: Correcto. Es preferible llamar al atributo _running ya que es una variable privada del objeto. Además, es preferible colocar la invocación del close() más cerca del punto donde se realiza la creación del socket. Por ejemplo mover el bind y listen dentro del run() y luego de salir del bucle colocar el close() para que se vea la simetría. En cualquier caso la implementación elegida funciona perfecto. 
+    Ejercicio 5: Correcto. Realiza dos implementaciones: con threads y con procesos. En este caso de mucho procesamiento de wait for I/O ambas funcionarían pero preferír siempre multiprocessing en python. Cuidado con lanzar hilos sin controlar la cantidad, un atacante puede generar rápidamente un DOS si conoce cómo está implementado el código del server. Como agregado, la lista de hilos/procesos únicamente se limpia y vacía al finalizar por completo el bucle de aceptación. Esto podría no ocurrir nunca si el servidor funciona en consecutivo durante meses generando un aumento progresivo en memoria utilizada con posterior caída del sistema.
+
+
 # Docker Compose Init
 El siguiente ejemplo es un cliente-servidor el cual corre en containers
 con la ayuda de [docker-compose](https://docs.docker.com/compose/). El presente
