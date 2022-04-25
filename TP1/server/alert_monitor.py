@@ -63,17 +63,23 @@ class AlertMonitor:
         # Our first window check is from N seconds ago until now
         last_check = datetime.datetime.now() - datetime.timedelta(seconds=self.freq)
         while self.running:
-            time.sleep(self.freq)
+            logging.debug(
+                f"Checking metrics between {last_check.strftime('%M:%S')} and {datetime.datetime.now().strftime('%M:%S')}"
+            )
             for metric_id, metric_alerts in self.alerts.items():
                 for (aggregate_op, aggregate_secs, limit) in metric_alerts:
                     aggregations = self.metrics_manager.aggregate(
                         metric_id, aggregate_op, aggregate_secs, last_check
                     )
+                    logging.debug(
+                        f"Results for alert check {metric_id, aggregate_op.name, aggregate_secs, limit}: {aggregations}"
+                    )
                     if any([(a > limit) for a in aggregations]):
                         logging.info(
                             f"ALERT {metric_id}: {aggregate_op.value} is over {limit}"
                         )
-                last_check = datetime.datetime.now()
+            last_check = datetime.datetime.now()
+            time.sleep(self.freq)
 
     def shutdown(self):
         """Stop our alert monitor loop"""
