@@ -83,6 +83,7 @@ class Server:
         # We ask the time as soon as we get the message!
         timestamp = datetime.now()
         try:
+            # that 1024 feels hardcoded... I don't have a custom protocol for the cmds
             msg = client_sock.recv(1024).rstrip().decode("utf-8").split()
             try:
                 (command, *parameters) = self.parse_msg(msg, timestamp)
