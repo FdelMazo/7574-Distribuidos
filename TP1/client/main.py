@@ -43,7 +43,7 @@ def main():
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((server_alias, server_port))
 
-        conn.send(f"{query}\n".encode("utf-8"))
+        conn.sendall(f"{query}\n".encode("utf-8"))
         response = conn.recv(1024).rstrip().decode("utf-8")
         if log:
             print(f"SEND -> {query}")

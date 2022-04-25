@@ -117,7 +117,7 @@ class Server:
 
     def reply(self, client_sock, status_code, msg):
         """Replies to the client with a status code and a message"""
-        client_sock.send(f"{status_code} {msg}".encode("utf-8"))
+        client_sock.sendall(f"{status_code} {msg}".encode("utf-8"))
 
     def apply_command(self, command, parameters):
         """Applies the command with help of our metrics and alerts managers and returns
