@@ -8,7 +8,7 @@ métricas de distintas aplicaciones. Provee tres funciones:
 - `LOG`: Almacenar una métrica nueva
 - `QUERY`: Hacer una consulta manual donde se agregan las métricas almacenadas
 - `NEW-ALERT`: Configurar una alarma nueva del sistema, para que el sistema nos
-  notifique si algo esta comportandose de forma anómala.
+  notifique si algo está comportándose de forma anómala.
 
 El sistema se constituye del servidor que almacena las métricas, y de uno o más clientes de
 prueba que constantemente insertarán métricas en el sistema. Adicionalmente se pueden hacer consultas manuales desde cualquiera de los clientes.
@@ -16,8 +16,8 @@ prueba que constantemente insertarán métricas en el sistema. Adicionalmente se
 ```zsh
 make up # Levanta el servidor y un cliente en un contenedor de Docker
 make up CLIENT_REPLICAS=5 # Levanta el servidor y 5 clientes en un contenedor de Docker
-make logs # Muestra todo lo que estan logeando los contenedores
-make manual # Hace attach del primer cliente del sistema, el cual nos permitirá hacer consultas de manera interactiva por entrada estandar
+make logs # Muestra todo lo que están logeando los contenedores
+make manual # Hace attach del primer cliente del sistema, el cual nos permitirá hacer consultas de manera interactiva por entrada estándar
 make down # Frena todos los containers
 ```
 
@@ -33,7 +33,7 @@ servicio?
 
 Para solucionar esto, el servidor tiene una `Pool` de procesos en la cual ejecutaremos
 las conexiones que efectivamente querramos atender (a diferencia de las conexiones a las
-que les devolveremos que el servidor esta con alta carga y que no puede atender en este
+que les devolveremos que el servidor está con alta carga y que no puede atender en este
 momento). Pero, para evitar que este llamado sea bloqueante y podamos seguir escuchando
 clientes y atender siguientes pedidos, la ejecución dentro del `Pool` se lo delegamos a
 un proceso aparte del que escucha clientes.
@@ -70,11 +70,11 @@ puedan surgir al querer acceder al archivo de la misma métrica, sea para lectur
 escrituras.
 
 Si bien esto se puede lograr con un simple lock que evite que dos procesos accedan al
-mismo archivo a la vez, una optimización que se puede agregar es la de preguntarnos que
-operación vamos a hacer sobre el archivo y en base a eso ver si permitimos multiples
+mismo archivo a la vez, una optimización que se puede agregar es la de preguntarnos qué
+operación vamos a hacer sobre el archivo y en base a eso ver si permitimos múltiples
 accesos o solo individuales. Esta optimización es un `Readers-Writer Lock`, un mecanismo
 por encima de un lock en donde permitamos hacer varias operaciones de lectura (la
-funcionalidad de agregación) en simultaneo, pero solo una operación de escritura (la
+funcionalidad de agregación) en simultáneo, pero solo una operación de escritura (la
 funcionalidad de almacenar métricas). La mayor parte del código y de la idea sale del
 libro [Python
 Cookbook](https://www.oreilly.com/library/view/python-cookbook/0596001673/ch06s04.html),
@@ -82,11 +82,11 @@ de la editorial O'Reilly.
 
 Entonces, ahora que ya tenemos una manera de atender el acceso a cada archivo de métrica
 por separado, solo nos queda buscar una manera de crear dinámicamente cada `RWLock`,
-ya que al comienzo del programa no sabemos cuantas ni cuales métricas vamos a atender en
+ya que al comienzo del programa no sabemos cuántas ni cuáles métricas vamos a atender en
 la sesión. Para esto se mantiene un diccionario donde tenemos los pares `<clave:valor>` de
 cada `<nombre de archivo:lock de archivo>` al cual atómicamente agregamos cada métrica que
 aparezca en la ejecución.  Por supuesto que el acceso a este diccionario también debe
-ser atómico, para evitar crear dos locks identicos en simultaneo. 
+ser atómico, para evitar crear dos locks idénticos en simultáneo. 
 
 El problema que surge al intentar hacer un lock común sobre este diccionario de locks es
 que, como tenemos cada cliente en su propio proceso compartiendo referencias al objeto
@@ -105,7 +105,7 @@ más performante posible (y así tener el lock de acceso la menor cantidad de ti
 se pueda). Es por esto que, ya que nuestros archivos serán de *logging*, el cual es un 
 entorno donde los eventos mas recientes suelen ser los que más nos interesan, una
 optimización que se hace sobre la lectura del archivo es que siempre leemos los archivos
-de atrás para adelante, agarrando las ultimas lineas, en vez de intentar guardarlo todo
+de atrás para adelante, agarrando las últimas líneas, en vez de intentar guardarlo todo
 en memoria.
 
 ![Robustez](informe/diagrams/robustness.png)
@@ -119,7 +119,7 @@ hace un llamado (interno, obviamente) al método de agregación de la alerta con
 Es decir, `NEW-ALERT mi-metrica MIN 1 5` llama a un comando casi idéntico al que
 llamaría `QUERY mi-metrica MIN 1`, y se fija si el resultado supera el límite de `5`. La
 única diferencia es que este llamado incluye que el agregado sea solamente sobre las 
-métricas recibidas en el último minuto (o más especificamente, desde el último chequeo),
+métricas recibidas en el último minuto (o más específicamente, desde el último chequeo),
 haciendo uso de que las queries de agregación pueden opcionalmente incluir una fecha
 desde la cual tomar las métricas.
 
@@ -141,7 +141,7 @@ Las alarmas no son persistidas de ninguna forma en el sistema, solo funcionan du
 sesión actual, por lo que hay en memoria. Esto es algo que se podría agregar como
 futuras funcionalidades.
 
-[^1]: Si bien se llama monitor, no tiene relación alguna con el metodo de
+[^1]: Si bien se llama monitor, no tiene relación alguna con el método de
     sincronización... pero no podía seguir poniendole `Manager()` a todo.
 
 
@@ -149,11 +149,11 @@ futuras funcionalidades.
 ## Anexo: Referencia de Comandos
 
 El servidor provee un comando para cada una de las funcionalidades del sistema, los
-cuales deben enviarse a través de una conexión TCP. La manera más facil de probar todo 
+cuales deben enviarse a través de una conexión TCP. La manera más fácil de probar todo 
 esto es con la ayuda de `make manual`, luego de `make up`. 
 
 ```zsh
-# Si se envia cualquier cosa, nos devuelve los comandos disponibles
+# Si se envía cualquier cosa, nos devuelve los comandos disponibles
 SEND -> FOO
 RECV -> 400 Bad Request -- Available commands: ['LOG', 'QUERY', 'NEW-ALERT']
 
@@ -169,11 +169,11 @@ RECV -> 400 Bad Request -- QUERY <id:str> <op:AVG|MAX|MIN|COUNT> <secs:int> [fro
 SEND -> NEW-ALERT foo
 RECV -> 400 Bad Request -- NEW-ALERT <id:str> <op:AVG|MAX|MIN|COUNT> <secs:int> <limit:float>
 
-# Se pueden insertar metricas
+# Se pueden insertar métricas
 SEND -> LOG mi-metrica 1
 RECV -> 201 Metric Inserted
 
-# Se pueden calcular conjuntos de metricas, especificando las ventanas de métricas a agregar en segundos, y opcionalmente enviando entre que fechas hacer los cálculos
+# Se pueden calcular conjuntos de métricas, especificando las ventanas de métricas a agregar en segundos, y opcionalmente enviando entre que fechas hacer los cálculos
 SEND -> QUERY mi-metrica MIN 1
 RECV -> 200 [1.0]
 SEND -> QUERY mi-metrica MAX 1
@@ -183,7 +183,7 @@ RECV -> 200 [1.0]
 SEND -> QUERY mi-metrica COUNT 1 2022-04-26T00:00:00 2022-04-26T00:00:05
 RECV -> 200 [1]
 
-# Se pueden configurar alertas para cualquier tipo de agregacion
+# Se pueden configurar alertas para cualquier tipo de agregación
 SEND -> NEW-ALERT mi-metrica MIN 1 1 
 RECV -> 200 Alert Registered
 
