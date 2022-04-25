@@ -37,6 +37,6 @@ logs:
 .PHONY: logs
 
 informe:
-	docker run --rm  -v $(shell pwd):/app marcelocorreia/plantuml -tpng informe/diagrams/*.puml
+	docker run --rm -v `pwd`:/data dstockhammer/plantuml -tpng informe/diagrams/*.puml
 	docker run --rm -v `pwd`:/pandoc dalibo/pandocker informe/header.yaml README.md --output informe.pdf
 .PHONY: informe

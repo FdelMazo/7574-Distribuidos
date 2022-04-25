@@ -58,6 +58,8 @@ el caso de los comandos de inserción de métrica y de agregación, llamamos a f
 `MetricsManager`: una capa arriba de nuestra base de datos (archivos `.log`) que tiene
 funciones de agregación y guardado.
 
+![Actividades: Respuesta desde el punto de vista del servidor](informe/diagrams/activity.png)
+
 ## Persistencia -- `FileManager()` y `RWLock()`
 
 Cada métrica se almacena en su propio archivo de log. Una optimización a considerar
@@ -106,6 +108,8 @@ optimización que se hace sobre la lectura del archivo es que siempre leemos los
 de atrás para adelante, agarrando las ultimas lineas, en vez de intentar guardarlo todo
 en memoria.
 
+![Robustez](informe/diagrams/robustness.png)
+
 ## Alertas -- `AlertMonitor()` 
 
 Por último, nos queda el monitor [^1] de alertas. Este servicio de alertas consiste de
@@ -140,8 +144,6 @@ futuras funcionalidades.
 [^1]: Si bien se llama monitor, no tiene relación alguna con el metodo de
     sincronización... pero no podía seguir poniendole `Manager()` a todo.
 
-![Actividades](informe/diagrams/activity.png)
-![Robustez](informe/diagrams/robustness.png)
 
 \newpage
 ## Anexo: Referencia de Comandos
@@ -183,7 +185,7 @@ RECV -> 200 [1]
 
 # Se pueden configurar alertas para cualquier tipo de agregacion
 SEND -> NEW-ALERT mi-metrica MIN 1 1 
-RECV -> 201 Alert Registered
+RECV -> 200 Alert Registered
 
 # El servidor nos avisa si la métrica no existe
 SEND -> QUERY foo COUNT 1

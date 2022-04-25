@@ -1,7 +1,36 @@
 @startuml
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
+!theme minty
 
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: Another authentication Response
+skinparam ArrowFontColor black
+
+partition "Server" {
+start
+:client_accept();
+
+if (is_overloaded()) then (true)
+  :reply(SERVICE_UNAVAILABLE);
+  stop
+else (false)
+  if (correct_format()) then (false)
+    :reply(BAD_REQUEST);
+    stop
+  else (true)
+    switch (command?)
+      case ( LOG)
+        :metrics.insert();
+        :reply(CREATED);
+        stop
+      case ( QUERY)
+        :metrics.aggregate();
+        :reply(OK);
+        stop
+      case ( NEW-ALERT)
+        :alerts.insert();
+        :reply(OK);
+        stop
+    endswitch
+  endif
+endif
+
+
 @enduml

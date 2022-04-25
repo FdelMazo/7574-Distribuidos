@@ -1,7 +1,45 @@
 @startuml
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
+!theme minty
+skinparam PackageBackgroundColor transparent
+skinparam FolderBackgroundColor transparent
+skinparam ActorBackgroundColor transparent
+skinparam ActorFontColor black
+skinparam EntityBackgroundColor transparent
+skinparam EntityFontColor black
+skinparam ControlBackgroundColor transparent
+skinparam ControlFontColor black
+skinparam BoundaryBackgroundColor transparent
+skinparam BoundaryFontColor black
+skinparam ArrowFontColor black
+skinparam FolderFontColor black
+skinparam ArrowThickness 1
 
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: Another authentication Response
+actor "Client"
+
+left to right direction
+package {
+  boundary "Server API" 
+  control "Server"
+  control "Alerts Monitor"
+  entity "Metrics Manager"
+  entity "File Manager"
+  folder logs [
+    <metric-id>.log
+    ....
+    <metric-id>.log
+    ....
+    <metric-id>.log
+  ] 
+}
+
+
+Client --> [Server API]
+[Server API] --> [Server]
+[Server API] --> [Alerts Monitor]
+[Server] --> [Metrics Manager]
+[Alerts Monitor] --> [Metrics Manager]
+[Metrics Manager] --> [File Manager]
+[File Manager] "RWLock" --> [logs]
+
+
 @enduml
