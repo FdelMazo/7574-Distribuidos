@@ -65,7 +65,6 @@ class Server:
 
                 # A little bit of garbage collection (clean up dead threads)
                 if len(processes) > os.cpu_count():
-                    logging.info("Cleaning old processes")
                     processes = [p for p in processes if p.is_alive()]
 
                 processes.append(process)
