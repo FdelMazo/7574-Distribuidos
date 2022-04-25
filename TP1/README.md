@@ -133,23 +133,15 @@ es un conjunto compartido entre procesos. Como ya vimos en el caso del `FileMana
 una solución ideal para esto es el `Manager()` de Python (el cual en este caso nos 
 permite tener un diccionario compartido entre los procesos).
 
+Las alarmas no son persistidas de ninguna forma en el sistema, solo funcionan durante la
+sesión actual, por lo que hay en memoria. Esto es algo que se podría agregar como
+futuras funcionalidades.
+
 [^1]: Si bien se llama monitor, no tiene relación alguna con el metodo de
     sincronización... pero no podía seguir poniendole `Manager()` a todo.
 
-
-Comandos
-Ejemplos
-Arbitrareidades
-Como resolvi la concurrencia
-fotos de procesos
-tree files
-Diagrama de robustes y que mas
-Pequeña seccion del cliente
-Vista Física con 1 diagrama
-Vista de Procesos con 1 diagrama
-Al menos una sección que indique cómo se resuelve la concurrencia.
-
-
+![Actividades](informe/diagrams/activity.png)
+![Robustez](informe/diagrams/robustness.png)
 
 \newpage
 ## Anexo: Referencia de Comandos
