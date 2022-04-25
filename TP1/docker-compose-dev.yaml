@@ -8,6 +8,11 @@ services:
       - ./config.ini:/config.ini:ro
       - ./logs:/logs
 
+  informe:
+    image: informe:latest
+    volumes:
+      - ./informe.pdf:/informe.pdf
+
   client:
     image: client:latest
     networks:

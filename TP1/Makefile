@@ -6,6 +6,7 @@ default: up
 docker-image:
 	docker build -f ./server/Dockerfile -t "server:latest" .
 	docker build -f ./client/Dockerfile -t "client:latest" .
+	docker build -f ./informe/Dockerfile -t "informe:latest" .
 .PHONY: docker-image
 
 manual:
