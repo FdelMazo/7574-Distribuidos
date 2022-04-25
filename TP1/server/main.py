@@ -1,5 +1,4 @@
 import logging
-import os
 import signal
 from configparser import ConfigParser
 from server import Server

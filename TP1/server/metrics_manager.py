@@ -92,13 +92,10 @@ class MetricsManager:
             #   if our window is 0 we explicitly want to proccess all of them individually
             time_ts = timestamp.timestamp()
             current_time_ts = current_time.timestamp()
+            group.append(metric_value)
             if ((time_ts - current_time_ts) <= aggregate_secs) and aggregate_secs != 0:
-                group.append(metric_value)
-            else:
-                groups.append(group)
-                group = []
-                current_time = None
-
-        if (groups == []) and (group != []):
+                continue
             groups.append(group)
+            group = []
+            current_time = None
         return groups
