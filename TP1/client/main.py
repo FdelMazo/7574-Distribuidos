@@ -1,9 +1,11 @@
 from configparser import ConfigParser
 import datetime
 import socket
-import time
-import psutil
 import threading
+import psutil
+import sys
+import multiprocessing
+import signal
 
 
 def get_stats():
@@ -23,15 +25,17 @@ def main():
     Ideal for having multiple replicated clients and checking if any of them are
     behaving out of the ordinary.
 
-    It has a constant thread listening for user input, so that a user can send manual
-    queries to the central server (setting up alerts, aggregate the metrics, etc)."""
+    It has a constant thread sending stats to the server every few seconds, while the
+    main thread waits for user input, so that a user can send manual queries to the
+    central server (setting up alerts, aggregate the metrics, etc)."""
 
     config = ConfigParser()
     config.read("./config.ini")
     server_alias = config["DEFAULT"]["server_alias"]
     server_port = int(config["DEFAULT"]["server_port"])
     freq = int(config["DEFAULT"]["client_stats_frequency"]) or 10
-    is_user_attached = threading.Event()
+    is_user_attached = multiprocessing.Event()
+    is_shutting_down = multiprocessing.Event()
 
     def send_query(query, log):
         if not query:
@@ -48,26 +52,38 @@ def main():
         conn.shutdown(socket.SHUT_RDWR)
         conn.close()
 
-    # Separate thread for manual queries
-    def manual_query(is_user_attached):
-        input()  # Wait for any kind of input before entering interactive mode
-        print(f"NOW -> {datetime.datetime.now().isoformat()}")
-        is_user_attached.set()
-        while True:
-            query = input("QUERY: ")
-            send_query(query, True)
+    def send_stats():
+        # Tell the world about our stats!
+        # Every freq seconds!
+        while not is_shutting_down.is_set():
+            stats = get_stats()
+            log = not is_user_attached.is_set()
+            for (metric_id, metric_value) in stats.items():
+                query = f"LOG {metric_id} {metric_value}"
+                send_query(query, log)
+            is_shutting_down.wait(freq)
 
-    threading.Thread(target=manual_query, args=((is_user_attached,))).start()
+    send_stats_thread = threading.Thread(target=send_stats, args=())
 
-    # Tell the world about our stats!
-    # Every freq seconds!
-    while True:
-        stats = get_stats()
-        log = not is_user_attached.is_set()
-        for (metric_id, metric_value) in stats.items():
-            query = f"LOG {metric_id} {metric_value}"
-            send_query(query, log)
-        time.sleep(freq)
+    def shutdown():
+        print("Shutting Down")
+        is_shutting_down.set()
+        send_stats_thread.join()
+
+        # The main thread might be blocked on input()
+        # So we need to interrupt it with a sys.exit()
+        # Not the cleanest shutdown in the world... (but this is a dummy client)
+        sys.exit(0)
+
+    signal.signal(signal.SIGTERM, lambda _n, _f: shutdown())
+    send_stats_thread.start()
+
+    input()
+    print(f"NOW -> {datetime.datetime.now().isoformat()}")
+    is_user_attached.set()
+    while not is_shutting_down.is_set():
+        query = input("QUERY: ")
+        send_query(query, True)
 
 
 if __name__ == "__main__":
