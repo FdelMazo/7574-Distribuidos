@@ -17,8 +17,8 @@ class Command(Enum):
 
 descriptions = {
     Command.LOG: "LOG <id:str> <value:float>",
-    Command.AGGREGATE: f"QUERY <id:str> <op:{'|'.join([op.value for op in AggregateOp])}> <secs:int> [from:iso_date] [to:iso_date]",
-    Command.NEW_ALERT: f"NEW-ALERT <id:str> <op:{'|'.join([op.value for op in AggregateOp])}> <secs:int> <limit:float>",
+    Command.AGGREGATE: f"QUERY <id:str> <op:{'|'.join([op.value for op in AggregateOp])}> <secs:float> [from:iso_date] [to:iso_date]",
+    Command.NEW_ALERT: f"NEW-ALERT <id:str> <op:{'|'.join([op.value for op in AggregateOp])}> <secs:float> <limit:float>",
 }
 
 
@@ -155,7 +155,7 @@ class Server:
                 metric_id, aggregate_op, aggregate_secs = (
                     msg[1],
                     AggregateOp(msg[2]),
-                    int(msg[3]),
+                    float(msg[3]),
                 )
                 from_date = datetime.fromisoformat(msg[4]) if len(msg) > 4 else None
                 to_date = datetime.fromisoformat(msg[5]) if len(msg) > 5 else None
@@ -171,7 +171,7 @@ class Server:
                 metric_id, aggregate_op, aggregate_secs, limit = (
                     msg[1],
                     AggregateOp(msg[2]),
-                    int(msg[3]),
+                    float(msg[3]),
                     float(msg[4]),
                 )
                 return (command, metric_id, aggregate_op, aggregate_secs, limit)
