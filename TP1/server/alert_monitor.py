@@ -64,7 +64,7 @@ class AlertMonitor:
         last_check = datetime.datetime.now() - datetime.timedelta(seconds=self.freq)
         while self.running:
             logging.debug(
-                f"Checking metrics between {last_check.strftime('%M:%S')} and {datetime.datetime.now().strftime('%M:%S')}"
+                f"Checking metrics between {last_check.strftime('%H:%M:%S')} and {datetime.datetime.now().strftime('%H:%M:%S')}"
             )
             for metric_id, metric_alerts in self.alerts.items():
                 for (aggregate_op, aggregate_secs, limit) in metric_alerts:
