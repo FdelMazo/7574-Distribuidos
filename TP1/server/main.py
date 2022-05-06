@@ -23,10 +23,11 @@ def main():
 
     process_manager_lock = multiprocessing.Manager().Lock()
     alerts = multiprocessing.Manager().dict()
+    alerts_lock = multiprocessing.Manager().Lock()
     file_manager = FileManager(process_manager_lock)
     metrics_manager = MetricsManager(file_manager)
 
-    alert_monitor = AlertMonitor(metrics_manager, alerts, alert_freq)
+    alert_monitor = AlertMonitor(metrics_manager, alerts, alerts_lock, alert_freq)
     alert_monitor_process = multiprocessing.Process(target=alert_monitor.run)
 
     server = Server(port, metrics_manager, alert_monitor)

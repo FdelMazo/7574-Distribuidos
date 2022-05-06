@@ -19,10 +19,11 @@ actor "Client"
 left to right direction
 package {
   boundary "Server API" 
-  control "Server"
+  control "Accept Loop"
   control "Alerts Monitor"
-  entity "Metrics Manager"
-  entity "File Manager"
+  control "Client Handler"
+  entity " Metrics\nManager" as MetricsManager
+  entity "    File\nManager" as FileManager
   folder logs [
     <metric-id>.log
     ....
@@ -34,12 +35,13 @@ package {
 
 
 Client --> [Server API]
-[Server API] --> [Server]
-[Server API] --> [Alerts Monitor]
-[Server] --> [Metrics Manager]
-[Alerts Monitor] --> [Metrics Manager]
-[Metrics Manager] --> [File Manager]
-[File Manager] "RWLock" --> [logs]
+[Server API] --> "1" [Accept Loop]
+[Server API] -right-> "1" [Alerts Monitor]
+[Accept Loop] "0..N" --> [Client Handler]
+[Client Handler] --> [MetricsManager]
+[Alerts Monitor] --> [MetricsManager]
+[MetricsManager] --> [FileManager]
+[FileManager] " " --> "//RWLock//" [logs]
 
 
 @enduml

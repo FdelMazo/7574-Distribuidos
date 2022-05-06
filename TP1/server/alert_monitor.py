@@ -9,12 +9,13 @@ class AlertMonitor:
     It runs a loop on it's own process that will check the metrics every N seconds. That
     means that if the stats received in the last N seconds go over a limit, we alert."""
 
-    def __init__(self, metrics_manager, alerts, alert_freq):
-        """Keep in mind, the alerts dict must be thread safe: it will be shared between
-        processes: the alert loop, and whatever process calls our add_alert method.
-        (That's why instead of creating it we receive it!)"""
+    def __init__(self, metrics_manager, alerts, alerts_lock, alert_freq):
+        """Keep in mind, the alerts dict+lock must be shareable between processes: it 
+        will be shared between the alert loop, and whatever process calls our add_alert 
+        method. (That's why instead of creating them we receive them!)"""
         self.metrics_manager = metrics_manager
         self.alerts = alerts
+        self.alerts_lock = alerts_lock
         self.freq = alert_freq
         self.running = True
 
@@ -32,17 +33,18 @@ class AlertMonitor:
         ignores the request"""
         if not self.metrics_manager.exists(metric_id):
             return False
-        if metric_id in self.alerts:
-            # Keep in mind, one can't simply append to the set inside the dict
-            # We need to reassign the set to key
-            # https://stackoverflow.com/a/46228938
-            s = self.alerts[metric_id]
-            s.add((aggregate_op, aggregate_secs, limit))
-            self.alerts[metric_id] = s
-        else:
-            # By using a set we avoid duplicates
-            # (and an already added alert will be ignored)
-            self.alerts[metric_id] = {(aggregate_op, aggregate_secs, limit)}
+        with self.alerts_lock: 
+            if metric_id in self.alerts:
+                # Keep in mind, one can't simply append to the set inside the dict
+                # We need to reassign the set to key
+                # https://stackoverflow.com/a/46228938
+                s = self.alerts[metric_id]
+                s.add((aggregate_op, aggregate_secs, limit))
+                self.alerts[metric_id] = s
+            else:
+                # By using a set we avoid duplicates
+                # (and an already added alert will be ignored)
+                self.alerts[metric_id] = {(aggregate_op, aggregate_secs, limit)}
         return True
 
     def run(self):

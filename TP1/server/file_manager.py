@@ -35,9 +35,9 @@ class FileManager:
 
     def exists(self, filename):
         """Returns True if the file exists, False otherwise."""
-        self.get_lock(filename).acquire_read()
+        # We can avoid having a read lock here as the FileManager class (currently)
+        # doesn't suppport deletion methods.
         r = os.path.isfile(filename)
-        self.get_lock(filename).release_read()
         return r
 
     def append_line(self, filename, line):

@@ -58,6 +58,14 @@ el caso de los comandos de inserción de métrica y de agregación, llamamos a f
 `MetricsManager`: una capa arriba de nuestra base de datos (archivos `.log`) que tiene
 funciones de agregación y guardado.
 
+Como podemos ver tenemos un proceso nuevo por cada cliente aceptado el cual va a 
+acompañar al pedido hasta el final del procesamiento, así asegurandose que el comando 
+solicitado sea cumplido. Esto es distinto a tener un proceso o *pool* de procesos por 
+cada comando en sí, donde podríamos lograr escalar el sistema de manera que si un 
+comando en particular fuese nuestro cuello de botella y requisiese más recursos o poder
+de cómputo que el resto, simplemente aumentaríamos el tamaño de esa *pool* en 
+particular.
+
 ![Actividades: Respuesta desde el punto de vista del servidor](informe/diagrams/activity.png)
 
 ## Persistencia -- `FileManager()` y `RWLock()`
@@ -108,6 +116,21 @@ optimización que se hace sobre la lectura del archivo es que siempre leemos los
 de atrás para adelante, agarrando las últimas líneas, en vez de intentar guardarlo todo
 en memoria.
 
+Una restricción que nos agrega esta idea de leer el archivo comenzando desde el final es
+que si el comando recibido implica agregar una cantidad descolosal de métricas nos vemos
+forzados a tener todas estas métricas en memoria en el mismo instante, algo que no 
+siempre es realizable. Si nosotros quisiesemos evitar eso, deberíamos iterar el archivo
+desde el comienzo e ir procesando las métricas en baches del tamaño de la ventana de
+agregación, así manteniendo en memoria solamente una fracción de todas las métricas
+solicitadas a la vez. De todas formas, esta solución haría que mantengamos el lock sobre
+el archivo por más tiempo, ya que mientras estamos haciendo el procesamiento seguiríamos
+con el archivo abierto (o alternativamente, abriríamos más veces el archivo por cada
+comando, lo cual en esencia nos lleva al mismo problema), haciendo que otros procesos 
+estén bloqueados de esa métrica por mayor cantidad de tiempo. Es por este trade-off 
+(tener todas las métricas en memoria pero tener una lectura performante *vs* evitar que
+otros procesos accedan al archivo por más tiempo y que la lectura no este optimizada) 
+que se mantiene la idea de iterar el archivo de atrás para adelante.
+
 ![Robustez](informe/diagrams/robustness.png)
 
 ## Alertas -- `AlertMonitor()` 
@@ -135,7 +158,8 @@ Cabe agregar que como el conjunto de alertas debe ser accedido tanto por el proc
 *loop* como por el proceso del servidor que agrega la alerta después de un `NEW-ALERT`,
 es un conjunto compartido entre procesos. Como ya vimos en el caso del `FileManager`,
 una solución ideal para esto es el `Manager()` de Python (el cual en este caso nos 
-permite tener un diccionario compartido entre los procesos).
+permite tener un diccionario compartido entre los procesos, en conjunto a un lock para
+permitir el acceso en simultáneo).
 
 Las alarmas no son persistidas de ninguna forma en el sistema, solo funcionan durante la
 sesión actual, por lo que hay en memoria. Esto es algo que se podría agregar como
