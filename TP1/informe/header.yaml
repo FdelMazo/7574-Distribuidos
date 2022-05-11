@@ -1,5 +1,5 @@
 ---
-title: "TP1: Metrics && Alert Server"
+title: "TP1: Concurrencia y Comunicaciones"
 subtitle: |
   | Facultad de Ingeniería, Universidad de Buenos Aires
   | [75.74] Sistemas Distribuidos I
@@ -11,7 +11,7 @@ colorlinks: true
 header-includes: |
   \usepackage{fancyhdr, xcolor, listings, framed, fvextra, caption}
   \pagestyle{fancy}
-  \fancyhead[L]{[75.74] Sistemas Distribuidos I \\ Metrics \&\& Alert Server}
+  \fancyhead[L]{[75.74] Sistemas Distribuidos I \\ TP1: Concurrencia y Comunicaciones}
   \fancyhead[R]{Federico del Mazo \\ 2022C1}
     
   \captionsetup[figure]{labelformat=empty} 
