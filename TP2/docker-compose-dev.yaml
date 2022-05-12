@@ -1,0 +1,25 @@
+version: '3'
+services:
+  server:
+    image: server:latest
+    networks:
+      - testing_net
+    volumes:
+      - ./config.ini:/config.ini:ro
+
+  client:
+    image: client:latest
+    networks:
+      - testing_net
+    volumes:
+      - ./config.ini:/config.ini:ro
+      - ./data:/data
+    depends_on:
+      - server
+
+networks:
+  testing_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.25.125.0/24
