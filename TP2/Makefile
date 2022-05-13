@@ -21,7 +21,7 @@ get-data:
 
 docker-image:
 	docker build -f ./server/Dockerfile -t "server:latest" . 
-	docker build -f ./client/Dockerfile -t "client:latest" .
+	docker build -f ./feeder/Dockerfile -t "feeder:latest" .
 .PHONY: docker-image
 
 logs:

@@ -7,8 +7,8 @@ services:
     volumes:
       - ./config.ini:/config.ini:ro
 
-  client:
-    image: client:latest
+  feeder:
+    image: feeder:latest
     networks:
       - testing_net
     volumes:
