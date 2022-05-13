@@ -27,7 +27,7 @@ def main():
 
     def send_file(file_path):
         with open(file_path, newline="") as f:
-            reader = csv.reader(
+            reader = csv.DictReader(
                 f, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
             )
             for (i, row) in enumerate(reader):
