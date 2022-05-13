@@ -35,7 +35,7 @@ def main():
                     break
                 if test_lines and (i > test_lines):
                     break
-                socket.send_string(json.dumps(row))
+                socket.send_json(row)
                 socket.recv()
 
     threads = []

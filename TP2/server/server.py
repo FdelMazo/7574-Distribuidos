@@ -13,7 +13,7 @@ class Server:
     def run(self):
         while self.running:
             try:
-                msg = json.loads(self.socket.recv())
+                msg = self.socket.recv_json()
                 logging.info(msg)
                 self.socket.send_string("OK")
             except zmq.ZMQError as e:
