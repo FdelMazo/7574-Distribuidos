@@ -33,6 +33,32 @@ services:
       - NODE_TYPE=source
     depends_on:
       - posts_worker
+      - posts_collector
+
+  posts_collector:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=posts_collector
+    depends_on:
+      - posts_worker
+
+  server:
+    image: server:latest
+    networks:
+      - testing_net
+    volumes:
+      - ./config.ini:/config.ini:ro
+    depends_on:
+      - feeder
+
+  client:
+    image: client:latest
+    networks:
+      - testing_net
+    volumes:
+      - ./config.ini:/config.ini:ro
+    depends_on:
+      - server
 
 networks:
   testing_net:
