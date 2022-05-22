@@ -1,26 +1,22 @@
-import zmq
 import logging
+import zmq
 
 
-class Server:
-    def __init__(self, port, posts_worker_host):
+class BaseNode:
+    def __init__(self, port, network_config):
         self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.PULL)
-        self.socket.bind(f"tcp://*:{port}")
+        self.network_config = network_config
 
-        self.posts_worker = self.context.socket(zmq.PUSH)
-        self.posts_worker.connect(
-            f"tcp://{posts_worker_host[0]}:{posts_worker_host[1]}"
-        )
+        self.recver = self.context.socket(zmq.PULL)
+        self.recver.bind(f"tcp://*:{port}")
 
         self.running = True
 
     def run(self):
         while self.running:
             try:
-                msg = self.socket.recv_json()
-                if msg["type"] == "post":
-                    self.posts_worker.send_json(msg)
+                msg = self.recver.recv_json()
+                self.work(msg)
             except zmq.ZMQError as e:
                 # If we are on a "Socket operation on non-socket" error,
                 # and we are not running anymore, that means we called shutdown()
@@ -30,7 +26,10 @@ class Server:
                 raise e
 
     def shutdown(self):
-        self.socket.setsockopt(zmq.LINGER, 0)
-        self.socket.close()
+        self.recver.setsockopt(zmq.LINGER, 0)
+        self.recver.close()
         self.context.term()
         self.running = False
+
+    def work(self, msg):
+        raise NotImplementedError

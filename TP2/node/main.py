@@ -1,8 +1,13 @@
 import logging
 import signal
 from configparser import ConfigParser
-from server import Server
+from posts_worker import PostsWorker
+import os
 
+
+NodeFactory = {
+    "posts_worker": PostsWorker,
+}
 
 def main():
     logging.basicConfig(
@@ -14,20 +19,20 @@ def main():
     config = ConfigParser()
     config.read("./config.ini")
 
-    port = int(config["NETWORK"]["server_port"])
-    posts_worker_host = (
-        config["NETWORK"]["posts_worker_hostname"],
-        int(config["NETWORK"]["posts_worker_port"]),
-    )
+    node_type = os.environ.get("NODE_TYPE")
+    if not node_type:
+        return
 
-    server = Server(port, posts_worker_host)
+    network_config = config["NETWORK"]
+    port = int(network_config[f"{node_type}_port"])
+    node = NodeFactory[node_type](port, network_config)
 
     def shutdown():
         logging.info("Shutting Down")
-        server.shutdown()
+        node.shutdown()
 
     signal.signal(signal.SIGTERM, lambda _n, _f: shutdown())
-    server.run()
+    node.run()
 
 
 if __name__ == "__main__":
