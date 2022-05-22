@@ -20,7 +20,6 @@ get-data:
 .PHONY: get-data
 
 docker-image:
-	docker build -f ./server/Dockerfile -t "server:latest" . 
 	docker build -f ./feeder/Dockerfile -t "feeder:latest" .
 	docker build -f ./node/Dockerfile -t "node:latest" .
 .PHONY: docker-image

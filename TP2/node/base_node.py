@@ -31,5 +31,10 @@ class BaseNode:
         self.context.term()
         self.running = False
 
+    def get_host(self, node_type):
+        hostname =  self.network_config[f"{node_type}_hostname"]
+        port = int(self.network_config[f"{node_type}_port"])
+        return (hostname, port)
+
     def work(self, msg):
         raise NotImplementedError

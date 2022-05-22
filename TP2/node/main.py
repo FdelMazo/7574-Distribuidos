@@ -2,10 +2,12 @@ import logging
 import signal
 from configparser import ConfigParser
 from posts_worker import PostsWorker
+from source import Source
 import os
 
 
 NodeFactory = {
+    "source": Source,
     "posts_worker": PostsWorker,
 }
 

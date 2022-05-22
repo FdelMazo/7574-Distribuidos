@@ -3,8 +3,8 @@ from base_node import BaseNode
 
 
 class PostsWorker(BaseNode):
-    def __init__(self, port, network_config):
-        super().__init__(port, network_config)
+    def __init__(self, *args):
+        super().__init__(*args)
         self.posts_n = 0
         self.posts_scores_sum = 0
     

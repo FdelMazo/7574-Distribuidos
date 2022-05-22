@@ -1,14 +1,5 @@
 version: '3'
 services:
-  server:
-    image: server:latest
-    networks:
-      - testing_net
-    volumes:
-      - ./config.ini:/config.ini:ro
-    depends_on:
-      - posts_worker
-
   feeder:
     image: feeder:latest
     networks:
@@ -17,7 +8,7 @@ services:
       - ./config.ini:/config.ini:ro
       - ./data:/data
     depends_on:
-      - server
+      - source
     environment:
       - TEST_LINES=5
 
@@ -35,6 +26,13 @@ services:
     deploy:
       mode: replicated
       replicas: ${POSTS_WORKERS:-1}
+
+  source:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=source
+    depends_on:
+      - posts_worker
 
 networks:
   testing_net:

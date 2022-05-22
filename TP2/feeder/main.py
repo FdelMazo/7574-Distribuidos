@@ -12,12 +12,12 @@ def main():
     data_dir = "./data"
 
     test_lines = int(os.environ.get("TEST_LINES", 0))
-    server_host = (config["NETWORK"]["server_hostname"], int(config["NETWORK"]["server_port"]))
+    source_host = (config["NETWORK"]["source_hostname"], int(config["NETWORK"]["source_port"]))
 
     is_shutdown = threading.Event()
     context = zmq.Context()
     socket = context.socket(zmq.PUSH)
-    socket.connect(f"tcp://{server_host[0]}:{server_host[1]}")
+    socket.connect(f"tcp://{source_host[0]}:{source_host[1]}")
 
     signal.signal(signal.SIGTERM, lambda _n, _f: is_shutdown.set())
 
