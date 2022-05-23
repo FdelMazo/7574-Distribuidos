@@ -1,17 +1,8 @@
 import logging
 import signal
 from configparser import ConfigParser
-from posts_worker import PostsWorker
-from posts_collector import PostsCollector
-from source import Source
+from node_factory import NodeFactory
 import os
-
-
-NodeFactory = {
-    "source": Source,
-    "posts_worker": PostsWorker,
-    "posts_collector": PostsCollector,
-}
 
 
 def main():
