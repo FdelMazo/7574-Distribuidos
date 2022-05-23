@@ -27,6 +27,14 @@ services:
       mode: replicated
       replicas: ${POSTS_WORKERS:-1}
 
+  comments_worker:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=comments_worker
+    deploy:
+      mode: replicated
+      replicas: ${COMMENTS_WORKERS:-1}
+
   source:
     <<: *base_node
     environment:

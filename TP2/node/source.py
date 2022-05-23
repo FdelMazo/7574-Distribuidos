@@ -12,12 +12,22 @@ class Source(BaseNode):
             f"tcp://{posts_worker_host[0]}:{posts_worker_host[1]}"
         )
 
+        comments_worker_host = self.get_host("comments_worker")
+        self.comments_worker = self.context.socket(zmq.PUSH)
+        self.comments_worker.connect(
+            f"tcp://{comments_worker_host[0]}:{comments_worker_host[1]}"
+        )
+
     def work(self, msg):
         if msg["type"] == "post":
             self.posts_worker.send_json(msg)
+        elif msg["type"] == "comment":
+            self.comments_worker.send_json(msg)
 
 
     def shutdown(self):
         self.posts_worker.setsockopt(zmq.LINGER, 0)
         self.posts_worker.close()
+        self.comments_worker.setsockopt(zmq.LINGER, 0)
+        self.comments_worker.close()
         super().shutdown()
