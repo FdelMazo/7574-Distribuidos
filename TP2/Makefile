@@ -1,3 +1,6 @@
+# Considering our data dir might be really big, sending the whole build context on
+# docker-build might be a bad idea.
+# Using Docker's build kit we see a nice performance improvement.
 export DOCKER_BUILDKIT = 1
 KAGGLE_DATASET = pavellexyr/the-reddit-irl-dataset
 
