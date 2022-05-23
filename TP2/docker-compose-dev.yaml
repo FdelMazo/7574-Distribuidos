@@ -7,15 +7,15 @@ services:
     volumes:
       - ./config.ini:/config.ini:ro
       - ./data:/data
-    depends_on:
-      - source
     environment:
       - TEST_LINES=5
+    profiles: ["feeder"]
 
   base_node: &base_node
     image: node:latest
     networks:
       - testing_net
+    profiles: ["graph"]
     volumes:
       - ./config.ini:/config.ini:ro
 
@@ -31,9 +31,6 @@ services:
     <<: *base_node
     environment:
       - NODE_TYPE=source
-    depends_on:
-      - posts_worker
-      - posts_collector
 
   posts_collector:
     <<: *base_node
@@ -48,8 +45,7 @@ services:
       - testing_net
     volumes:
       - ./config.ini:/config.ini:ro
-    depends_on:
-      - feeder
+    profiles: ["query"]
 
   client:
     image: client:latest
@@ -57,6 +53,7 @@ services:
       - testing_net
     volumes:
       - ./config.ini:/config.ini:ro
+    profiles: ["query"]
     depends_on:
       - server
 

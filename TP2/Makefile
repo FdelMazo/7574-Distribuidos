@@ -2,7 +2,9 @@ export DOCKER_BUILDKIT = 1
 KAGGLE_DATASET = pavellexyr/the-reddit-irl-dataset
 
 up: docker-image
-	docker-compose -f docker-compose-dev.yaml up --detach
+	docker-compose -f docker-compose-dev.yaml --profile graph up --detach
+	docker-compose -f docker-compose-dev.yaml --profile query up --detach
+	docker-compose -f docker-compose-dev.yaml --profile feeder up --detach
 .PHONY: up
 
 down:
