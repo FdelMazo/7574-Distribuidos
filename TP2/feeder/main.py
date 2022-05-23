@@ -32,6 +32,7 @@ def main():
                 if test_lines and (i >= test_lines):
                     break
                 socket.send_json(row)
+        print(f"Finished sending {i} lines from {file_path}")
 
     threads = []
     for file_path in os.listdir(data_dir):
