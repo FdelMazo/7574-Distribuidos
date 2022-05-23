@@ -17,4 +17,4 @@ class PostsCollector(BaseSink):
     def reply(self, msg):
         if not self.posts_n:
             return str(0)
-        return f"{self.posts_score_sum / self.posts_n:.4f}"
+        return f"{self.posts_score_sum / self.posts_n:.2f}"
