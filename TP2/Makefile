@@ -4,6 +4,8 @@
 export DOCKER_BUILDKIT = 1
 KAGGLE_DATASET = pavellexyr/the-reddit-irl-dataset
 
+run: down up logs
+
 up: docker-image
 	docker-compose -f docker-compose-dev.yaml --profile graph up --detach
 	docker-compose -f docker-compose-dev.yaml --profile query up --detach
