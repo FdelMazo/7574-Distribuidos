@@ -4,7 +4,7 @@ from base_node import BaseNode
 from base_sink import BaseSink
 
 
-class PostsCollector(BaseSink):
+class Collector(BaseSink):
     def __init__(self, *args):
         super().__init__(*args)
         self.posts_score_sum = 0

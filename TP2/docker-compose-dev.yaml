@@ -40,10 +40,10 @@ services:
     environment:
       - NODE_TYPE=source
 
-  posts_collector:
+  collector:
     <<: *base_node
     environment:
-      - NODE_TYPE=posts_collector
+      - NODE_TYPE=collector
     depends_on:
       - posts_worker
 

@@ -9,15 +9,13 @@ class Server:
         self.reply_socket = self.context.socket(zmq.REP)
         self.reply_socket.bind(f"tcp://*:{port}")
 
-        posts_collector_host = (
-            network_config["posts_collector_hostname"],
-            int(network_config["posts_collector_reply_port"]),
+        collector_host = (
+            network_config["collector_hostname"],
+            int(network_config["collector_reply_port"]),
         )
 
-        self.posts_collector = self.context.socket(zmq.REQ)
-        self.posts_collector.connect(
-            f"tcp://{posts_collector_host[0]}:{posts_collector_host[1]}"
-        )
+        self.collector = self.context.socket(zmq.REQ)
+        self.collector.connect(f"tcp://{collector_host[0]}:{collector_host[1]}")
 
         self.running = True
 
@@ -28,8 +26,8 @@ class Server:
                 logging.debug(msg)
                 if msg == "/post_avg_score":
                     logging.debug(msg)
-                    self.posts_collector.send_string(msg)
-                    avg_score = self.posts_collector.recv_string()
+                    self.collector.send_string(msg)
+                    avg_score = self.collector.recv_string()
                     self.reply_socket.send_string(avg_score)
             except zmq.ZMQError as e:
                 # If we are on a "Socket operation on non-socket" error,
@@ -42,7 +40,7 @@ class Server:
     def shutdown(self):
         self.reply_socket.setsockopt(zmq.LINGER, 0)
         self.reply_socket.close()
-        self.posts_collector.setsockopt(zmq.LINGER, 0)
-        self.posts_collector.close()
+        self.collector.setsockopt(zmq.LINGER, 0)
+        self.collector.close()
         self.context.term()
         self.running = False
