@@ -8,7 +8,7 @@ services:
       - ./config.ini:/config.ini:ro
       - ./data:/data
     environment:
-      - TEST_LINES=5
+      - TEST_LINES=50
     profiles: ["feeder"]
 
   base_node: &base_node
@@ -46,6 +46,21 @@ services:
       - NODE_TYPE=posts_collector
     depends_on:
       - posts_worker
+
+  comments_sentiment_worker:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=comments_sentiment_worker
+    depends_on:
+      - comments_worker
+
+  comments_sentiment_max:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=comments_sentiment_max
+    depends_on:
+      - comments_sentiment_worker
+
 
   server:
     image: server:latest
