@@ -5,6 +5,7 @@ from server import Server
 
 
 def main():
+    """Basic setup for the Server class"""
     config = ConfigParser()
     config.read("./config.ini")
 

@@ -1,10 +1,17 @@
-import zmq
 from base_node import BaseNode
-import re
-import logging
 
 
 class CommentsAverager(BaseNode):
+    """
+    REPENSAR ESTO
+    The CommentsAverager averages every post comments according to their sentiment,
+    comment from the source node, filters out the attributes we don't need, processes
+    some attributes, and sends everything to the next node in the DAG
+
+    This node keeps track of the sum and count of each post comments, and as such can't
+    be replicated. There must only be one CommentsAverager node in the whole DAG
+    """
+
     def __init__(self, *args):
         super().__init__(*args)
         self.joiner = self.push_socket("joiner")

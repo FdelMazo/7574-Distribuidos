@@ -1,7 +1,5 @@
 import zmq
 from base_node import BaseNode
-import math
-import logging
 
 
 class PostsMaxSentiment(BaseNode):

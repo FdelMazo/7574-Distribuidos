@@ -1,9 +1,16 @@
-import zmq
-import logging
 from base_node import BaseNode
 
 
 class Joiner(BaseNode):
+    """
+    The joiner node can be considered the most important node in the whole DAG.
+    It serves us as the 'database' of the DAG, receiving both posts and comments, and
+    linking them together so that we can then later process them over aggregated comment
+    attributes while not loosing the post original attributes.
+
+    This node can't be replicated!
+    """
+
     def __init__(self, *args):
         super().__init__(*args)
         self.posts = {}

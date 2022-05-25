@@ -6,6 +6,11 @@ import os
 
 
 def main():
+    """
+    A little setup for any Node class, which are all classes that inherit from BaseNode
+    We decide which Node to instantiate based on the 'NODE_TYPE' env var and checking it
+    against the NodeFactory dictionary (a {node_type_name: node_type_class} dict)
+    """
     config = ConfigParser()
     config.read("./config.ini")
 
