@@ -1,0 +1,32 @@
+@startuml
+!theme minty
+
+skinparam PartitionFontColor black
+skinparam LegendFontColor black
+skinparam ArrowFontColor black
+skinparam NoteBackgroundColor lemonchiffon
+skinparam NoteFontColor black
+skinparam backgroundColor white
+
+partition "Return the average post score" {
+  start
+  -> ( id,score,... );
+  :PostsWorker;
+  note left
+    filter the attrs we need
+  endnote
+  -> ( score );
+  #ff8662 :PostsAverager; 
+  note right
+    keep count and sum
+  endnote
+  -> ( score_avg );
+  stop
+
+  legend bottom right
+      |= |Worker Type|
+      |<#56cc9d>| Stateless & Scalable|
+      |<#ff8662>| Stateful & Unique|
+  endlegend
+}
+@enduml

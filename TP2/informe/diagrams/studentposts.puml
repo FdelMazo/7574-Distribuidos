@@ -1,0 +1,48 @@
+@startuml
+!theme minty
+
+skinparam PartitionFontColor black
+skinparam LegendFontColor black
+skinparam ArrowFontColor black
+skinparam NoteBackgroundColor lemonchiffon
+skinparam NoteFontColor black
+skinparam backgroundColor white
+
+skinparam ArrowFontColor black
+skinparam NoteBackgroundColor lemonchiffon
+skinparam NoteFontColor black
+skinparam backgroundColor white
+skinparam ConditionEndStyle hline
+
+partition "Return URLs of student-liked posts (w/good score)" {
+  start
+  -> ( type,... );
+  :Source;
+  if (type) then (post)
+      :PostsWorker;
+      -> ( score );
+    #ff8662 :PostsAverager; 
+      -> ( score_avg );
+  else (comment)
+    :CommentsWorker;
+    note right
+      check if the comment has
+      student keywords
+    endnote
+  endif
+  -> ( post_id,is_student_related );
+  #ff8662 :Joiner;
+  -> ( post_url );
+  :FilterByAvgScore;
+  -> ( post_url );
+  stop
+
+  legend bottom right
+      |= |Worker Type|
+      |<#56cc9d>| Stateless & Scalable|
+      |<#ff8662>| Stateful & Unique|
+  endlegend
+}
+
+@enduml
+
