@@ -1,2 +1,7 @@
+# Having a global reqs file is not perfect. Each container should know what it needs,
+# However, most containers in the system require pyzmq, it feels pointless to have the
+# same file duplicated over and over
 pyzmq==22.3.0
+
+# Get an image content from a url!
 requests==2.25.0

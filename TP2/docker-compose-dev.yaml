@@ -1,5 +1,6 @@
 version: '3'
 services:
+  ## Feeder Profile: feed data into the DAG source ##
   feeder:
     image: feeder:latest
     networks:
@@ -8,80 +9,12 @@ services:
       - ./config.ini:/config.ini:ro
       - ./data:/data:ro
     environment:
-      - TEST_LINES=0
+      # Limit the amount of data feeded
+      # Set to 0 or unset to feed all data
+      - TEST_LINES=50
     profiles: ["feeder"]
 
-  base_node: &base_node
-    image: node:latest
-    networks:
-      - testing_net
-    profiles: ["graph"]
-    volumes:
-      - ./config.ini:/config.ini:ro
-
-  posts_worker:
-    <<: *base_node
-    environment:
-      - NODE_TYPE=posts_worker
-    deploy:
-      mode: replicated
-      replicas: ${POSTS_WORKERS:-1}
-
-  comments_worker:
-    <<: *base_node
-    environment:
-      - NODE_TYPE=comments_worker
-    deploy:
-      mode: replicated
-      replicas: ${COMMENTS_WORKERS:-1}
-
-  source:
-    <<: *base_node
-    environment:
-      - NODE_TYPE=source
-
-  posts_averager:
-    <<: *base_node
-    environment:
-      - NODE_TYPE=posts_averager
-    depends_on:
-      - posts_worker
-
-  posts_filter:
-    <<: *base_node
-    environment:
-      - NODE_TYPE=posts_filter
-    depends_on:
-      - posts_averager
-
-  comments_averager:
-    <<: *base_node
-    environment:
-      - NODE_TYPE=comments_averager
-    depends_on:
-      - comments_worker
-
-  posts_max_sentiment:
-    <<: *base_node
-    environment:
-      - NODE_TYPE=posts_max_sentiment
-    depends_on:
-      - comments_averager
-
-  image_streamer:
-    <<: *base_node
-    environment:
-      - NODE_TYPE=image_streamer
-    depends_on:
-      - posts_max_sentiment
-
-  joiner:
-    <<: *base_node
-    environment:
-      - NODE_TYPE=joiner
-    depends_on:
-      - posts_max_sentiment
-
+  ## Query Profile: client constantly querying server for results ##
   server:
     image: server:latest
     networks:
@@ -100,6 +33,75 @@ services:
     profiles: ["query"]
     depends_on:
       - server
+
+  ## Graph Profile: every node in the DAG ##
+  # Nodes with deploy mode == replicated can be parallelized, and nodes without them
+  # need to be unique, as they are stateful and can't be instantiated more than once
+
+  # Every node departs from the base_node and must have set the `NODE_TYPE` env var
+  base_node: &base_node
+    image: node:latest
+    networks:
+      - testing_net
+    profiles: ["graph"]
+    volumes:
+      - ./config.ini:/config.ini:ro
+
+  source:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=source
+
+  posts_worker:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=posts_worker
+    deploy:
+      mode: replicated
+      replicas: ${POSTS_WORKERS:-1}
+
+  comments_worker:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=comments_worker
+    deploy:
+      mode: replicated
+      replicas: ${COMMENTS_WORKERS:-1}
+
+  posts_averager:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=posts_averager
+
+  joiner:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=joiner
+
+  posts_filter:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=posts_filter
+
+  comments_averager:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=comments_averager
+    depends_on:
+      - comments_worker
+
+  posts_max_sentiment:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=posts_max_sentiment
+
+  image_streamer:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=image_streamer
+    deploy:
+      mode: replicated
+      replicas: ${IMAGE_WORKERS:-1}
 
 networks:
   testing_net:

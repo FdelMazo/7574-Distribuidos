@@ -11,5 +11,5 @@ class PostsWorker(BaseNode):
 
     def work(self, msg):
         fileterd_keys = ["type", "id", "score", "permalink", "url"]
-        self.joiner.send_json({k: v for k, v in msg.items() if k in fileterd_keys})
         self.posts_averager.send_json({"score": msg["score"]})
+        self.joiner.send_json({k: v for k, v in msg.items() if k in fileterd_keys})

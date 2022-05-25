@@ -7,6 +7,15 @@ import os
 
 
 def main():
+    """
+    This client asks the server for whatever metrics it has stored every few seconds.
+
+    The current supported metrics are:
+    - The average score of all posts
+    - A sample of posts liked by students
+    - The meme with the highest average sentiment
+    """
+
     config = ConfigParser()
     config.read("./config.ini")
 
@@ -15,39 +24,52 @@ def main():
         int(config["NETWORK"]["server_port"]),
     )
 
-    is_shutting_down = threading.Event()
+    # Have a dedicated event to track if we are shutting down (on SIGTERMs) and need to
+    # stop our while loop
+    is_shutdown = threading.Event()
+    signal.signal(signal.SIGTERM, lambda _n, _f: is_shutdown.set())
 
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
     socket.connect(f"tcp://{server_host[0]}:{server_host[1]}")
 
-    def query_stats():
-        while not is_shutting_down.is_set():
-            socket.send_string("/everything_everywhere_all_at_once")
-            reply = socket.recv_json()
-            if reply:
-                print("\nGot some stuff from the server!")
-            for metric_name, metric in reply.items():
-                if metric.get("metric_encoded"):
-                    img = base64.b64decode(metric["metric_value"].encode("ascii"))
-                    filepath = f"./memes/{metric_name}.jpg"
+    while not is_shutdown.is_set():
+        # The 'protocol' is pretty naive: just send any string and get a dict of metrics
+        socket.send_string("/everything_everywhere_all_at_once")
+        reply = socket.recv_json()
 
-                    if not os.path.exists(filepath) or os.path.getsize(filepath) != len(img):
-                        with open(filepath, "wb") as f:
-                            f.write(img)
-                            print(f"* saving {filepath}")
-                else:
-                    print(f"* {metric_name}: {metric['metric_value']}")
-            is_shutting_down.wait(10)
+        if len(reply):
+            print("\nGot some stuff from the server!")
 
-    query_stats_thread = threading.Thread(target=query_stats, args=())
-    query_stats_thread.start()
+        # The metrics in our dict can be plain strings or encoded ones
+        # If the metric is encoded, it will provide the optional 'metric_encoded'
+        # boolean in the dict.
+        # The encoded strings are bytes encoded into base64 and then decoded as ascii,
+        # to have them as strings instead of bytestrings which can be easily sent
+        # inside the dict
+        for metric_name, metric in reply.items():
+            if metric.get("metric_encoded"):
+                # If the metric is encoded, it is intended to be saved by the client in
+                # a file
+                file_content = base64.b64decode(metric["metric_value"].encode("ascii"))
+                filepath = f"./memes/{metric_name}.jpg"
 
-    def shutdown():
-        is_shutting_down.set()
+                # We want to avoid doing fs operations if the metric didn't change
+                if not os.path.exists(filepath) or os.path.getsize(filepath) != len(
+                    file_content
+                ):
+                    with open(filepath, "wb") as f:
+                        f.write(file_content)
+                        print(f"* saving {metric_name} in {filepath}")
 
-    signal.signal(signal.SIGTERM, lambda _n, _f: shutdown())
-    query_stats_thread.join()
+            else:
+                # If the metric is not encoded, we simply print it out
+                print(f"* {metric_name}: {metric['metric_value']}")
+
+        # Ask again in a few seconds!
+        # (This should probably be configurable...)
+        is_shutdown.wait(10)
+
     socket.setsockopt(zmq.LINGER, 0)
     socket.close()
     context.term()
