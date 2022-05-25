@@ -2,6 +2,7 @@ from configparser import ConfigParser
 import zmq
 import threading
 import signal
+import base64
 
 
 def main():
@@ -21,8 +22,17 @@ def main():
 
     def query_stats():
         while not is_shutting_down.is_set():
-            socket.send_string("/post_avg_score")
-            print(f"Post average score: {socket.recv_string()}")
+            print("Asking for every stat...")
+            socket.send_string("/everything_everywhere_all_at_once")
+            reply = socket.recv_json()
+            for metric_name, metric in reply.items():
+                if metric.get("metric_encoded"):
+                    img = base64.b64decode(metric["metric_value"].encode("ascii"))
+                    print(f"* Saving ./memes/{metric_name}.jpg")
+                    with open(f"./memes/{metric_name}.jpg", "wb") as f:
+                        f.write(img)
+                else:
+                    print(f"* {metric_name}: {metric['metric_value']}")
             is_shutting_down.wait(5)
 
     query_stats_thread = threading.Thread(target=query_stats, args=())

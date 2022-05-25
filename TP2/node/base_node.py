@@ -11,10 +11,10 @@ class BaseNode:
         self.context = zmq.Context()
         self.recver = self.context.socket(zmq.PULL)
         self.recver.bind(f"tcp://*:{port}")
-
+        self.sockets = [self.recver]
         self.running = True
 
-    def pull_loop(self):
+    def run(self):
         while self.running:
             try:
                 msg = self.recver.recv_json()
@@ -28,12 +28,10 @@ class BaseNode:
                     break
                 raise e
 
-    def start(self):
-        self.pull_loop()
-
     def shutdown(self):
-        self.recver.setsockopt(zmq.LINGER, 0)
-        self.recver.close()
+        for socket in self.sockets:
+            socket.setsockopt(zmq.LINGER, 0)
+            socket.close()
         self.context.term()
         self.running = False
 
@@ -41,6 +39,13 @@ class BaseNode:
         hostname = self.network_config[f"{node_type}_hostname"]
         port = int(self.network_config[f"{node_type}_port"])
         return (hostname, port)
+
+    def push_socket(self, node_type):
+        hostname, port = self.get_host(node_type)
+        socket = self.context.socket(zmq.PUSH)
+        socket.connect(f"tcp://{hostname}:{port}")
+        self.sockets.append(socket)
+        return socket
 
     def work(self, msg):
         raise NotImplementedError

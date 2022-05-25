@@ -1,15 +1,19 @@
 from comments_worker import CommentsWorker
-from comments_sentiment_worker import CommentsSentimentWorker
-from comments_sentiment_max import CommentsSentimentMax
+from comments_averager import CommentsAverager
+from posts_max_sentiment import PostsMaxSentiment
+from image_streamer import ImageStreamer
 from posts_worker import PostsWorker
-from collector import Collector
+from posts_averager import PostsAverager
 from source import Source
+from joiner import Joiner
 
 NodeFactory = {
     "source": Source,
+    "joiner": Joiner,
+    "image_streamer": ImageStreamer,
     "posts_worker": PostsWorker,
-    "collector": Collector,
+    "posts_averager": PostsAverager,
     "comments_worker": CommentsWorker,
-    "comments_sentiment_worker": CommentsSentimentWorker,
-    "comments_sentiment_max": CommentsSentimentMax,
+    "comments_averager": CommentsAverager,
+    "posts_max_sentiment": PostsMaxSentiment,
 }

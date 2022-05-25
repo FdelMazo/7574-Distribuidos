@@ -1,34 +1,53 @@
 import zmq
 import logging
+import threading
 
 
 class Server:
     def __init__(self, network_config):
+        self.metrics = {}
         self.context = zmq.Context()
-        port = int(network_config["server_port"])
+        reply_port = int(network_config["server_port"])
         self.reply_socket = self.context.socket(zmq.REP)
-        self.reply_socket.bind(f"tcp://*:{port}")
+        self.reply_socket.bind(f"tcp://*:{reply_port}")
 
-        collector_host = (
-            network_config["collector_hostname"],
-            int(network_config["collector_reply_port"]),
-        )
-
-        self.collector = self.context.socket(zmq.REQ)
-        self.collector.connect(f"tcp://{collector_host[0]}:{collector_host[1]}")
+        pull_port = int(network_config["collector_port"])
+        self.pull_socket = self.context.socket(zmq.PULL)
+        self.pull_socket.bind(f"tcp://*:{pull_port}")
 
         self.running = True
 
-    def run(self):
+    def start(self):
+        self.reply_process = threading.Thread(target=self.reply_loop)
+        self.pull_process = threading.Thread(target=self.pull_loop)
+        self.reply_process.start()
+        self.pull_process.start()
+
+    def reply_loop(self):
         while self.running:
             try:
                 msg = self.reply_socket.recv_string()
                 logging.debug(msg)
-                if msg == "/post_avg_score":
+                self.reply_socket.send_json(self.metrics)
+            except zmq.ZMQError as e:
+                # If we are on a "Socket operation on non-socket" error,
+                # and we are not running anymore, that means we called shutdown()
+                # and we can safely break our while loop
+                if e.errno == zmq.ENOTSOCK and not self.running:
+                    break
+                raise e
+
+    def pull_loop(self):
+        while self.running:
+            try:
+                msg = self.pull_socket.recv_json()
+                if msg.get("metric_encoded"):
+                    logging.debug({k: v for k, v in msg.items() if k != "metric_value"})
+                else:
                     logging.debug(msg)
-                    self.collector.send_string(msg)
-                    avg_score = self.collector.recv_string()
-                    self.reply_socket.send_string(avg_score)
+                self.metrics[msg["metric_name"]] = {
+                    k: v for k, v in msg.items() if k != "metric_name"
+                }
             except zmq.ZMQError as e:
                 # If we are on a "Socket operation on non-socket" error,
                 # and we are not running anymore, that means we called shutdown()
@@ -40,7 +59,9 @@ class Server:
     def shutdown(self):
         self.reply_socket.setsockopt(zmq.LINGER, 0)
         self.reply_socket.close()
-        self.collector.setsockopt(zmq.LINGER, 0)
-        self.collector.close()
+        self.pull_socket.setsockopt(zmq.LINGER, 0)
+        self.pull_socket.close()
         self.context.term()
         self.running = False
+        self.reply_process.join()
+        self.pull_process.join()

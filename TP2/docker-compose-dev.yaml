@@ -6,9 +6,9 @@ services:
       - testing_net
     volumes:
       - ./config.ini:/config.ini:ro
-      - ./data:/data
+      - ./data:/data:ro
     environment:
-      - TEST_LINES=50
+      - TEST_LINES=0
     profiles: ["feeder"]
 
   base_node: &base_node
@@ -40,27 +40,40 @@ services:
     environment:
       - NODE_TYPE=source
 
-  collector:
+  posts_averager:
     <<: *base_node
     environment:
-      - NODE_TYPE=collector
+      - NODE_TYPE=posts_averager
     depends_on:
       - posts_worker
 
-  comments_sentiment_worker:
+  comments_averager:
     <<: *base_node
     environment:
-      - NODE_TYPE=comments_sentiment_worker
+      - NODE_TYPE=comments_averager
     depends_on:
       - comments_worker
 
-  comments_sentiment_max:
+  posts_max_sentiment:
     <<: *base_node
     environment:
-      - NODE_TYPE=comments_sentiment_max
+      - NODE_TYPE=posts_max_sentiment
     depends_on:
-      - comments_sentiment_worker
+      - comments_averager
 
+  image_streamer:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=image_streamer
+    depends_on:
+      - posts_max_sentiment
+
+  joiner:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=joiner
+    depends_on:
+      - posts_max_sentiment
 
   server:
     image: server:latest
@@ -76,6 +89,7 @@ services:
       - testing_net
     volumes:
       - ./config.ini:/config.ini:ro
+      - ./memes:/memes
     profiles: ["query"]
     depends_on:
       - server

@@ -4,6 +4,8 @@ import threading
 import signal
 import csv
 import zmq
+import time
+
 
 def main():
     config = ConfigParser()
@@ -12,7 +14,10 @@ def main():
     data_dir = "./data"
 
     test_lines = int(os.environ.get("TEST_LINES", 0))
-    source_host = (config["NETWORK"]["source_hostname"], int(config["NETWORK"]["source_port"]))
+    source_host = (
+        config["NETWORK"]["source_hostname"],
+        int(config["NETWORK"]["source_port"]),
+    )
 
     is_shutdown = threading.Event()
     context = zmq.Context()
@@ -32,6 +37,7 @@ def main():
                 if test_lines and (i >= test_lines):
                     break
                 socket.send_json(row)
+                time.sleep(0.1)
         print(f"Finished sending {i} lines from {file_path}")
 
     threads = []

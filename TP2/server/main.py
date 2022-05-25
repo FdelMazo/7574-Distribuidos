@@ -22,7 +22,7 @@ def main():
         server.shutdown()
 
     signal.signal(signal.SIGTERM, lambda _n, _f: shutdown())
-    server.run()
+    server.start()
 
 
 if __name__ == "__main__":

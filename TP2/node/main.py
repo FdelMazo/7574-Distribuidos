@@ -27,7 +27,7 @@ def main():
         node.shutdown()
 
     signal.signal(signal.SIGTERM, lambda _n, _f: shutdown())
-    node.start()
+    node.run()
 
 
 if __name__ == "__main__":
