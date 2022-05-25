@@ -16,7 +16,7 @@ class CommentsWorker(BaseNode):
         keys_to_keep = ["type", "sentiment"]
         filtered_msg = {k: v for k, v in msg.items() if k in keys_to_keep}
         filtered_msg["post_id"] = RE_COMMENT_TO_POST.search(msg["permalink"]).group(1)
-        filtered_msg["is_college"] = any(
+        filtered_msg["is_student_liked"] = any(
             [college.lower() in msg["body"].lower() for college in COLLEGE_KEYWORDS]
         )
         self.comments_averager.send_json(filtered_msg)

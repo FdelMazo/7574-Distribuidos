@@ -21,7 +21,7 @@ class CommentsAverager(BaseNode):
             self.posts_sentiments_count.get(msg["post_id"], 0) + 1
         )
         self.posts_sentiments_sum[msg["post_id"]] = (
-            self.posts_sentiments_count.get(msg["post_id"], 0) + sentiment
+            self.posts_sentiments_sum.get(msg["post_id"], 0) + sentiment
         )
         avg = (
             self.posts_sentiments_sum[msg["post_id"]]

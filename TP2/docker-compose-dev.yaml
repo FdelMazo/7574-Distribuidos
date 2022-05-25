@@ -47,6 +47,13 @@ services:
     depends_on:
       - posts_worker
 
+  posts_filter:
+    <<: *base_node
+    environment:
+      - NODE_TYPE=posts_filter
+    depends_on:
+      - posts_averager
+
   comments_averager:
     <<: *base_node
     environment:

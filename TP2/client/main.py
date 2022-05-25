@@ -3,6 +3,7 @@ import zmq
 import threading
 import signal
 import base64
+import os
 
 
 def main():
@@ -22,18 +23,22 @@ def main():
 
     def query_stats():
         while not is_shutting_down.is_set():
-            print("Asking for every stat...")
             socket.send_string("/everything_everywhere_all_at_once")
             reply = socket.recv_json()
+            if reply:
+                print("\nGot some stuff from the server!")
             for metric_name, metric in reply.items():
                 if metric.get("metric_encoded"):
                     img = base64.b64decode(metric["metric_value"].encode("ascii"))
-                    print(f"* Saving ./memes/{metric_name}.jpg")
-                    with open(f"./memes/{metric_name}.jpg", "wb") as f:
-                        f.write(img)
+                    filepath = f"./memes/{metric_name}.jpg"
+
+                    if not os.path.exists(filepath) or os.path.getsize(filepath) != len(img):
+                        with open(filepath, "wb") as f:
+                            f.write(img)
+                            print(f"* saving {filepath}")
                 else:
                     print(f"* {metric_name}: {metric['metric_value']}")
-            is_shutting_down.wait(5)
+            is_shutting_down.wait(10)
 
     query_stats_thread = threading.Thread(target=query_stats, args=())
     query_stats_thread.start()

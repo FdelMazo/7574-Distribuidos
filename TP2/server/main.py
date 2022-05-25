@@ -9,7 +9,7 @@ def main():
     config.read("./config.ini")
 
     logging.basicConfig(
-        format="%(asctime)s %(levelname)-8s %(message)s",
+        format="%(message)s",
         level=config["LOGGING"]["level"],
         datefmt="%Y-%m-%d %H:%M:%S",
     )
