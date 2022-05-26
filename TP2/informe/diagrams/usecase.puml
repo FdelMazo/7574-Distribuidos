@@ -1,0 +1,20 @@
+@startuml
+!theme minty
+
+skinparam PartitionFontColor black
+skinparam LegendFontColor black
+skinparam ArrowFontColor black
+skinparam NoteBackgroundColor lemonchiffon
+skinparam NoteFontColor black
+skinparam backgroundColor white
+
+skinparam ArrowFontColor black
+skinparam NoteBackgroundColor lemonchiffon
+skinparam NoteFontColor black
+skinparam backgroundColor white
+skinparam ConditionEndStyle hline
+
+un pibito y 3 flechitas por cada metrica y una cuarta que sea 'pedir mas cosas'
+2 flechitas punteadas que sean en bytes y en string plano
+@enduml
+

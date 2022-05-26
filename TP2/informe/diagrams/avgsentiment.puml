@@ -11,33 +11,41 @@ skinparam ConditionEndStyle hline
 
 partition "Allow the user to download the highest sentiment post" {
   start
-  -> ( type,... );
+  -> ...( type,...,id )...;
   :Source;
   if (type) then (post)
     :PostsWorker;
-    -> ( post_id,meme_url );
+    note left
+      grab url
+      (and don't lose the id!)
+    endnote
   else (comment)
     :CommentsWorker;
     note right
-      transform permalink
-      into post_id
+      get post_id
+      from other attrs
     endnote
-    -> ( post_id,sentiment );
-    #ff8662 :CommentsSentimentAverager;
+    -> ...( post_id,sentiment )...;
+    #ff8662 :SentimentAverager;
     note right
       aggregate by post
     endnote
-    -> ( post_id,sentiment_avg );
-    #ff8662 :CommentsSentimentsMaxer;
+    -> ...( post_id,sentiment )...;
+    #ff8662 :Filterer;
     note right
-      keep track of the max
+      keep track of the max sentiment_avg
+      only push out if sentiment_avg > max
     endnote
   endif
-  -> ( post_id, meme_url );
-  #ff8662 :Joiner;
-  -> ( meme_url );
+  -> --> ...( id, url )... \n ( id, sentiment_avg ) <--;
+  #ff8662 :Joiner<
+    note left
+      join by id, so that we can have
+      (id,url,sentiment_avg)
+    endnote
+  -> ( url );
   :ImageStreamer;
-  -> bytes(meme_url);
+  -> bytes(url);
   stop
 
   legend bottom right

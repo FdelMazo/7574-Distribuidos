@@ -10,15 +10,15 @@ skinparam backgroundColor white
 
 partition "Return the average post score" {
   start
-  -> ( id,score,... );
+  -> ...( id,...,score )...;
   :PostsWorker;
   note left
-    filter the attrs we need
+    grab the post score
   endnote
-  -> ( score );
-  #ff8662 :PostsAverager; 
+  -> ...( score )...;
+  #ff8662 :ScoreAverager; 
   note right
-    keep count and sum
+    keep track of count and sum
   endnote
   -> ( score_avg );
   stop

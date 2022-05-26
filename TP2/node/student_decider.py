@@ -15,6 +15,8 @@ class StudentDecider(BaseNode):
     be replicated. There must only be one CommentsAverager node in the whole DAG
     """
 
+    # Student Decider is not the best name in the world.
+
     def __init__(self, *args):
         super().__init__(*args)
         # Sockets

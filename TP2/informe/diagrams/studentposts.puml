@@ -16,25 +16,27 @@ skinparam ConditionEndStyle hline
 
 partition "Return URLs of student-liked posts (w/good score)" {
   start
-  -> ( type,... );
+  -> ...( type,...,id )...;
   :Source;
   if (type) then (post)
-      :PostsWorker;
-      -> ( score );
-    #ff8662 :PostsAverager; 
-      -> ( score_avg );
+    :PostsWorker;
+    -> ...( id,score,permalink )...;
+    #ff8662 :ScoreAverager; 
+    note left
+      only push out posts with 
+      score greater than avg
+    endnote
   else (comment)
     :CommentsWorker;
+    -> ...( post_id,body )...;
+   #ff8662 :StudentDecider;
     note right
-      check if the comment has
-      student keywords
+      push student-related only
     endnote
   endif
-  -> ( post_id,is_student_related );
-  #ff8662 :Joiner;
-  -> ( post_url );
-  :FilterByAvgScore;
-  -> ( post_url );
+    -> --> ...( id,permalink )... \n            ( id ) <--;
+  #ff8662 :Joiner<
+  -> (permalink);
   stop
 
   legend bottom right

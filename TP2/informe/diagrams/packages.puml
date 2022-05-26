@@ -1,0 +1,20 @@
+@startuml
+!theme minty
+
+skinparam PartitionFontColor black
+skinparam LegendFontColor black
+skinparam ArrowFontColor black
+skinparam NoteBackgroundColor lemonchiffon
+skinparam NoteFontColor black
+skinparam backgroundColor white
+
+skinparam ArrowFontColor black
+skinparam NoteBackgroundColor lemonchiffon
+skinparam NoteFontColor black
+skinparam backgroundColor white
+skinparam ConditionEndStyle hline
+
+un paquete por profile
+
+@enduml
+
