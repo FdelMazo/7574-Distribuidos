@@ -4,7 +4,6 @@ import re
 import logging
 
 RE_COMMENT_TO_POST = re.compile(r"reddit\.com\/r\/\w*\/comments\/(\w*)\/")
-COLLEGE_KEYWORDS = ["university", "college", "student", "teacher", "professor"]
 
 
 class CommentsWorker(BaseNode):
@@ -20,18 +19,20 @@ class CommentsWorker(BaseNode):
     def __init__(self, *args):
         super().__init__(*args)
         self.comments_averager = self.push_socket("comments_averager")
+        self.student_decider = self.push_socket("student_decider")
 
     def work(self, msg):
-        keys_to_keep = ["type", "sentiment"]
-        filtered_msg = {k: v for k, v in msg.items() if k in keys_to_keep}
-
         # We can deduce the post_id from a given comment's permalink
-        filtered_msg["post_id"] = RE_COMMENT_TO_POST.search(msg["permalink"]).group(1)
+        
+        # Keep in mind we are overwriting the 'id' attribute that previously referred to
+        # the comments id and now refers to the post id, as we don't need to singularly
+        # identify particular comments throughout the whole file
+        msg["id"] = RE_COMMENT_TO_POST.search(msg["permalink"]).group(1)
+        self.comments_averager.send_json(self.pick_keys(msg, ["id", "sentiment"]))
+        self.student_decider.send_json(self.pick_keys(msg, ["id", "body"]))
 
-        # We create a simple boolean that indicates if the comment is student-related
-        filtered_msg["is_student_liked"] = any(
-            [college.lower() in msg["body"].lower() for college in COLLEGE_KEYWORDS]
-        )
+        # keys_to_keep = ["type", "sentiment"]
+        # filtered_msg = {k: v for k, v in msg.items() if k in keys_to_keep}
 
-        # We send everything to the next node in the DAG: the comments_averager
-        self.comments_averager.send_json(filtered_msg)
+        # # We send everything to the next node in the DAG: the comments_averager
+        # self.filter.send_json(filtered_msg)

@@ -7,6 +7,7 @@ class BaseNode:
     Every node in our DAG consists of the same idea: pull from a socket, work the
     message received, push to the next node in the DAG.
     """
+
     def __init__(self, node_type, network_config):
         self.node_type = node_type
         self.network_config = network_config
@@ -15,7 +16,7 @@ class BaseNode:
         self.context = zmq.Context()
         self.recver = self.context.socket(zmq.PULL)
         self.recver.bind(f"tcp://*:{port}")
-        
+
         # We store every socket in self.sockets to easily shut them down later
         self.sockets = [self.recver]
         self.running = True
@@ -25,7 +26,7 @@ class BaseNode:
             try:
                 msg = self.recver.recv_json()
                 logging.debug(msg)
-                
+
                 # Every child class must override the work method!
                 self.work(msg)
             except zmq.ZMQError as e:
@@ -65,3 +66,6 @@ class BaseNode:
 
     def work(self, msg):
         raise NotImplementedError
+
+    def pick_keys(self, msg, keys):
+        return {k: v for k, v in msg.items() if k in keys}

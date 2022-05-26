@@ -14,9 +14,7 @@ class PostsAverager(BaseNode):
     def work(self, msg):
         self.posts_n += 1
         self.posts_score_sum += int(msg["score"])
-        self.posts_filter.send_json(
-            {"post_score_average": self.posts_score_sum / self.posts_n}
-        )
+        self.posts_filter.send_json({"post_score_average": self.posts_score_sum / self.posts_n})
         self.collector.send_json(
             {
                 "metric_name": "post_score_average",

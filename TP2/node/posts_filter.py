@@ -9,27 +9,33 @@ class PostsFilter(BaseNode):
     def __init__(self, *args):
         super().__init__(*args)
         self.collector = self.push_socket("collector")
+        self.image_streamer = self.push_socket("image_streamer")
+
         self.posts_urls = set()
         self.posts_average_score = None
+        self.post_max_sentiment_avg = None
+        self.score_avg = None
 
     def work(self, msg):
         if msg.get("post_score_average"):
             self.posts_average_score = msg["post_score_average"]
 
-        elif (
-            self.posts_average_score
-            and msg.get("permalink")
-            and float(msg.get("score", 0)) > self.posts_average_score
-        ):
-            if msg["permalink"] in self.posts_urls:
-                return
+        if msg.get("permalink") and msg.get("is_student_liked") and msg.get("score"):
+            if self.posts_average_score and msg["score"] >= self.posts_average_score:
+                self.posts_urls.add(msg["permalink"])
+                self.collector.send_json(
+                    {
+                        "metric_name": "student-liked-posts-sample",
+                        "metric_value": random.sample(
+                            self.posts_urls, min(len(self.posts_urls), 3)
+                        ),
+                    }
+                )
 
-            self.posts_urls.add(msg["permalink"])
-            self.collector.send_json(
-                {
-                    "metric_name": "student-liked-posts-sample",
-                    "metric_value": random.sample(
-                        self.posts_urls, min(len(self.posts_urls), 3)
-                    ),
-                }
-            )
+        if msg.get("url") and msg.get("sentiment_avg"):
+            if (
+                not self.post_max_sentiment_avg
+                or msg["sentiment_avg"] >= self.post_max_sentiment_avg
+            ):
+                self.post_max_sentiment_avg = msg["sentiment_avg"]
+                self.image_streamer.send_json(self.pick_keys(msg, ["url"]))
