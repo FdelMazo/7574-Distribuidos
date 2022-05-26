@@ -1,6 +1,7 @@
 from base_node import BaseNode
 import re
 
+INVALID_COMMENTS = ["[removed]", "[deleted]"]
 RE_COMMENT_TO_POST = re.compile(r"reddit\.com\/r\/\w*\/comments\/(\w*)\/")
 
 
@@ -20,6 +21,10 @@ class CommentsWorker(BaseNode):
         self.student_decider = self.push_socket("student_decider")
 
     def work(self, msg):
+        # Filter out removed/empty comments
+        if not msg['body'] or any([msg['body'] == invalid for invalid in INVALID_COMMENTS]):
+            return
+
         # We can deduce the post_id from a given comment's permalink!
         # Keep in mind we are overwriting the 'id' attribute that previously referred to
         # the comments id and now refers to the post id, as we don't need to singularly
