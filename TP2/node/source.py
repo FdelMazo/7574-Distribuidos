@@ -8,7 +8,7 @@ class Source(BaseNode):
     according to it's type
     
     Even though this node doesn't keep any kind of state and we can replicate it, it's
-    better to keep a single source node and if we were to need more workers we can
+    cleaner to keep a single source node and if we were to need more workers we can
     simply replicate the PostsWorker or CommentsWorker
     """
     def __init__(self, *args):

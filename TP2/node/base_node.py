@@ -64,8 +64,12 @@ class BaseNode:
         self.sockets.append(socket)
         return socket
 
+    def pick_keys(self, msg, keys):
+        """
+        Helper function to filter out keys from a big msg, reducing the payload size and
+        making sure that we are sending only the stuff we need
+        """
+        return {k: v for k, v in msg.items() if k in keys}
+
     def work(self, msg):
         raise NotImplementedError
-
-    def pick_keys(self, msg, keys):
-        return {k: v for k, v in msg.items() if k in keys}

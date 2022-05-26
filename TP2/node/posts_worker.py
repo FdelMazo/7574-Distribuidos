@@ -17,10 +17,12 @@ class PostsWorker(BaseNode):
         self.joiner = self.push_socket("joiner")
 
     def work(self, msg):
-        # The posts_averager only needs the post score
+        # On one branch of the dag: send the score to an averager to calculate the post
+        # score average
         self.posts_averager.send_json(self.pick_keys(msg, ["score"]))
 
-        # The joiner needs more attributes to join the posts and the comments
+        # On the other branch of the dag: send the post metadata we want to the joiner,
+        # which will serve as a kind of database for the system
         self.joiner.send_json(
             self.pick_keys(msg, ["id", "score", "permalink", "url"])
         )
