@@ -58,13 +58,11 @@ def main():
             coin_toss = random.random()
             if coin_toss <= 0.75:
                 posts_row = next(posts_reader, None)
-                print(posts_row)
                 if posts_row:
                     socket.send_json(posts_row)
                     i += 1
             else:
                 comments_row = next(comments_reader, None)
-                print(comments_row)
                 if comments_row:
                     socket.send_json(comments_row)
                     j += 1

@@ -6,7 +6,7 @@ STUDENT_KEYWORDS = ["university", "college", "student", "teacher", "professor"]
 class StudentDecider(BaseNode):
     """
     The StudentDecider checks if a comment contains any keywords relevant to our
-    search, then sets up a boolean attribute to track this and sends it off to the post 
+    search, then sets up a boolean attribute to track this and sends it off to the post
     joiner
 
     It currently only searches for student-related keywords.
@@ -19,11 +19,11 @@ class StudentDecider(BaseNode):
         super().__init__(*args)
         # Sockets
         self.joiner = self.push_socket("joiner")
-        
+
         # State
-        # We could also not keep any kind of state in this node (making it replicable) 
+        # We could also not keep any kind of state in this node (making it replicable)
         # and just send a post to the joiner every time we encounter a relevant comment.
-        # However, that would increment the traffic that the joiner receives and that's 
+        # However, that would increment the traffic that the joiner receives and that's
         # a trade-off we don't want to make
         self.student_posts = set()
 
@@ -31,9 +31,10 @@ class StudentDecider(BaseNode):
         is_student = any(
             [student.lower() in msg["body"].lower() for student in STUDENT_KEYWORDS]
         )
-        
+
         # We only want to send each post once, so we only push forward the posts that we
         # didn't yet encounter
-        if msg["post_id"] not in self.student_posts and is_student:
-            self.student_posts.add(msg["post_id"])
-            self.joiner.send_json({"id": msg["post_id"], "is_student_liked": True})
+        if msg["id"] not in self.student_posts and is_student:
+            self.student_posts.add(msg["id"])
+            msg["is_student_liked"] = True
+            self.joiner.send_json(self.pick_keys(msg, ["id", "is_student_liked"]))

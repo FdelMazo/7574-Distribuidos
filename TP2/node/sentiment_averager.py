@@ -21,7 +21,7 @@ class SentimentAverager(BaseNode):
 
     def work(self, msg):
         # We discard comments with no sentiment
-        if msg["sentiment"] is None:
+        if not msg["sentiment"]:
             return
 
         post_id = msg["id"]

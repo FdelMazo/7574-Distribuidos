@@ -30,7 +30,10 @@ class Filterer(BaseNode):
         # metric to the user consisting of a n-sample of the post urls with score above
         # average
         if msg.get("permalink") and msg.get("is_student_liked") and msg.get("score"):
-            if self.posts_average_score and msg["score"] >= self.posts_average_score:
+            if (
+                self.posts_average_score
+                and int(msg["score"]) >= self.posts_average_score
+            ):
                 self.posts_urls.add(msg["permalink"])
                 self.collector.send_json(
                     {
