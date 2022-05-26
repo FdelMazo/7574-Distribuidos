@@ -6,7 +6,7 @@ skinparam LegendFontColor black
 skinparam ArrowFontColor black
 skinparam NoteBackgroundColor lemonchiffon
 skinparam NoteFontColor black
-skinparam backgroundColor white
+skinparam legendbackgroundcolor transparent
 
 partition "Return the average post score" {
   start

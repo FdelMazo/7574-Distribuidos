@@ -1,20 +1,30 @@
 @startuml
 !theme minty
+skinparam swimlanetitlefontcolor black
 
-skinparam PartitionFontColor black
-skinparam LegendFontColor black
-skinparam ArrowFontColor black
-skinparam NoteBackgroundColor lemonchiffon
-skinparam NoteFontColor black
-skinparam backgroundColor white
+|#EDFDFD|Client|
+|#F0FFF4|Feeder|
+|#FFF5F5|Server|
+|#FFFAF0|Graph|
 
-skinparam ArrowFontColor black
-skinparam NoteBackgroundColor lemonchiffon
-skinparam NoteFontColor black
-skinparam backgroundColor white
-skinparam ConditionEndStyle hline
+|Feeder|
+start
+:Read & Send Line;
+|Server|
+:Dispatch to Graph;
+|Graph|
+:Process & Send Metrics;
+|Server|
+:Collect Metrics;
+stop
 
-como un cliente pide una metrica
+|Client|
+start
+:Ask for metrics;
+|Server|
+:Return everything collected;
+|Client|
+stop
 
 @enduml
 

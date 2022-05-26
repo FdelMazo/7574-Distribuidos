@@ -1,56 +1,56 @@
 @startuml
 !theme minty
+skinparam arrowfontcolor black
+skinparam actorbackgroundcolor transparent
+skinparam actorfontcolor black
+skinparam legendbackgroundcolor transparent
+skinparam filebordercolor #56cc9d
+skinparam filebackgroundcolor transparent
+skinparam legendfontcolor black
 
-skinparam PartitionFontColor black
-skinparam LegendFontColor black
-skinparam ArrowFontColor black
-skinparam ArrowFontSize 9
-skinparam NoteBackgroundColor lemonchiffon
-skinparam NoteFontColor black
-skinparam backgroundColor white
+<style>
+startsty {
+  BackgroundColor #6cc3d5
+}
+</style>
 
-skinparam ArrowFontColor black
-skinparam NoteBackgroundColor lemonchiffon
-skinparam NoteFontColor black
-skinparam backgroundColor white
-skinparam ConditionEndStyle hline
+file {
+  interface start #black [
+  ]
+  stack Collector #f3969a [
+  Collector
+  ]
+  card Source #56cc9d
+  card PostsWorker #56cc9d
+  card CommentsWorker #56cc9d
+  card ImageStreamer #56cc9d
+  card ScoreAverager #ff8662
+  card SentimentAverager #ff8662
+  hexagon Joiner #ff8662
+  card Filterer #ff8662
+  card StudentDecider #ff8662
 
-start
--> ...( type,...,id )...;
-:Source;
-if (type) then (post)
-    :PostsWorker;
-else (comment)
-  :CommentsWorker;
-  split
-  -> ...( id,sentiment )...;
-  #ff8662 :SentimentAverager; 
-  -> ...( id,sentiment_avg )...;
-  split again
-  -> ...( id,body )...;
-  #ff8662 :StudentDecider; 
-  -> ...( id,is_student_related )...;
-  end split
-endif
--> -->...( id,score,permalink,url )...\n     ...( id,is_student_related )...<--\n     ...( id,sentiment_avg )...      <--;
-#ff8662 :Joiner;
--> <post with lots of metadata>;
-#ff8662 :Filterer;
-note right
-  push into the respective metrics
-  only if they meet the criteria
-endnote
--> <metrics>;
-split
-  stop
-split again
-  stop
-endsplit
+  start -down-> Source: post or comment
+  Source -down-> PostsWorker: post
+  Source -down-> CommentsWorker: comment
+  PostsWorker -down-> ScoreAverager: post score
+  CommentsWorker -down-> SentimentAverager: Post id\nComment Sentiment
+  CommentsWorker -down-> StudentDecider: Post id\nComment Body
+  PostsWorker -down-> Joiner: Post w/\nmetadata
+  SentimentAverager -down-> Joiner: Posts w/\navg sentiment
+  StudentDecider -down-> Joiner: Posts w/\nstudent keywords
+  Joiner -down-> Filterer: Posts w/\nfull metadata
+  Filterer -down-> ImageStreamer
+  ScoreAverager --down--> Filterer: Post Score Average
+  ScoreAverager --down--> Collector: Metric: Post\nScore Average
+  ImageStreamer -down-> Collector: Metric: High\nSentiment Meme
+  Filterer --down--> Collector: Metric: Student\nLiked URLs
+}
 
 legend bottom right
     |= |Worker Type|
     |<#56cc9d>| Stateless & Scalable|
     |<#ff8662>| Stateful & Unique|
 endlegend
-@enduml
 
+@enduml

@@ -1,20 +1,22 @@
 @startuml
 !theme minty
 
-skinparam PartitionFontColor black
-skinparam LegendFontColor black
-skinparam ArrowFontColor black
-skinparam NoteBackgroundColor lemonchiffon
-skinparam NoteFontColor black
-skinparam backgroundColor white
+skinparam rectanglebackgroundcolor transparent
+skinparam rectanglefontcolor black
+skinparam actorbackgroundcolor transparent
+skinparam actorfontcolor black
 
-skinparam ArrowFontColor black
-skinparam NoteBackgroundColor lemonchiffon
-skinparam NoteFontColor black
-skinparam backgroundColor white
-skinparam ConditionEndStyle hline
+left to right direction
+actor "Client" as fc
+rectangle Server {
+  usecase "Average Post\nScore" as UC1
+  usecase "High-sentiment\nimages" as UC2
+  usecase "Student-liked\nposts" as UC3
+  usecase "Future Metrics" as UC4
+}
+fc --> UC1
+fc --> UC2
+fc --> UC3
+fc ..> UC4
 
-un pibito y 3 flechitas por cada metrica y una cuarta que sea 'pedir mas cosas'
-2 flechitas punteadas que sean en bytes y en string plano
 @enduml
-

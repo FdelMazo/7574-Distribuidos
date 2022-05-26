@@ -11,7 +11,7 @@ services:
     environment:
       # Limit the amount of data feeded
       # Set to 0 or unset to feed all data
-      - TEST_LINES=0
+      - TEST_LINES=${TEST_LINES:-0}
     profiles: ["feeder"]
 
   ## Query Profile: client constantly querying server for results ##

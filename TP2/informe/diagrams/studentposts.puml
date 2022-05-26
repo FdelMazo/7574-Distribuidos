@@ -6,12 +6,11 @@ skinparam LegendFontColor black
 skinparam ArrowFontColor black
 skinparam NoteBackgroundColor lemonchiffon
 skinparam NoteFontColor black
-skinparam backgroundColor white
+skinparam legendbackgroundcolor transparent
 
 skinparam ArrowFontColor black
 skinparam NoteBackgroundColor lemonchiffon
 skinparam NoteFontColor black
-skinparam backgroundColor white
 skinparam ConditionEndStyle hline
 
 partition "Return URLs of student-liked posts (w/good score)" {

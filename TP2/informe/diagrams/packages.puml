@@ -1,20 +1,43 @@
 @startuml
 !theme minty
 
-skinparam PartitionFontColor black
-skinparam LegendFontColor black
-skinparam ArrowFontColor black
-skinparam NoteBackgroundColor lemonchiffon
-skinparam NoteFontColor black
-skinparam backgroundColor white
+skinparam packagebackgroundcolor transparent
+skinparam CloudBackgroundColor transparent
+skinparam CloudBorderColor green
+skinparam Cloudfontsize 16
+skinparam CollectionsBackgroundColor #6cc3d5
+skinparam CollectionsBorderColor #343a40
+skinparam actorbackgroundcolor transparent
+skinparam actorfontcolor black
+skinparam ArrowThickness 1
+skinparam Packageborderthickness 2
+skinparam filebackgroundcolor transparent
+skinparam filefontcolor black
+skinparam filebordercolor #56cc9d
 
-skinparam ArrowFontColor black
-skinparam NoteBackgroundColor lemonchiffon
-skinparam NoteFontColor black
-skinparam backgroundColor white
-skinparam ConditionEndStyle hline
 
-un paquete por profile
+package "Graph" {
+  collections nodes
+  card Source
+  card Collector
+  Source -right-> nodes
+  nodes -right-> Collector
+}
+
+actor User
+file CSVs
+cloud Feeder
+CSVs -right-> Feeder
+Feeder -up-> Source
+
+package "Query" {
+  card Client
+  card Server
+  Server <---right---> Client
+}
+
+Collector -up-> Server
+Client --right--> User
 
 @enduml
 

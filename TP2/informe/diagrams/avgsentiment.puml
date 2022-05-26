@@ -6,7 +6,7 @@ skinparam LegendFontColor black
 skinparam ArrowFontColor black
 skinparam NoteBackgroundColor lemonchiffon
 skinparam NoteFontColor black
-skinparam backgroundColor white
+skinparam legendbackgroundcolor transparent
 skinparam ConditionEndStyle hline
 
 partition "Allow the user to download the highest sentiment post" {
