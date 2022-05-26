@@ -1,13 +1,13 @@
 from base_node import BaseNode
 
 
-class CommentsAverager(BaseNode):
+class SentimentAverager(BaseNode):
     """
-    The CommentsAverager receives comments from the CommentsWorker and then sends the
-    post with the sentiment_avg to the joiner
+    The SentimentAverager receives comments from the CommentsWorker, aggregates them by
+    their post id and then sends the post with the sentiment_avg to the joiner
 
     This node keeps track of the sum and count of each post comments, and as such can't
-    be replicated. There must only be one CommentsAverager node in the whole DAG
+    be replicated. There must only be one SentimentAverager node in the whole DAG
     """
 
     def __init__(self, *args):
@@ -33,7 +33,7 @@ class CommentsAverager(BaseNode):
         self.posts_sentiments_sum[post_id] = (
             self.posts_sentiments_sum.get(post_id, 0) + sentiment
         )
-        
+
         msg["sentiment_avg"] = (
             self.posts_sentiments_sum[post_id] / self.posts_sentiments_count[post_id]
         )

@@ -68,32 +68,32 @@ services:
       mode: replicated
       replicas: ${COMMENTS_WORKERS:-1}
 
-  posts_averager:
+  score_averager:
     <<: *base_node
     environment:
-      - NODE_TYPE=posts_averager
+      - NODE_TYPE=score_averager
 
   joiner:
     <<: *base_node
     environment:
       - NODE_TYPE=joiner
 
-  posts_filter:
+  filterer:
     <<: *base_node
     environment:
-      - NODE_TYPE=posts_filter
+      - NODE_TYPE=filterer
 
-  comments_averager:
+  sentiment_averager:
     <<: *base_node
     environment:
-      - NODE_TYPE=comments_averager
+      - NODE_TYPE=sentiment_averager
     depends_on:
       - comments_worker
 
-  posts_max_sentiment:
+  student_decider:
     <<: *base_node
     environment:
-      - NODE_TYPE=posts_max_sentiment
+      - NODE_TYPE=student_decider
 
   image_streamer:
     <<: *base_node

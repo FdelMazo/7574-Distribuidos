@@ -16,7 +16,7 @@ class CommentsWorker(BaseNode):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.comments_averager = self.push_socket("comments_averager")
+        self.sentiment_averager = self.push_socket("sentiment_averager")
         self.student_decider = self.push_socket("student_decider")
 
     def work(self, msg):
@@ -26,8 +26,8 @@ class CommentsWorker(BaseNode):
         # identify particular comments throughout the whole file
         msg["id"] = RE_COMMENT_TO_POST.search(msg["permalink"]).group(1)
 
-        # We send the sentiment to the comments_averager
-        self.comments_averager.send_json(self.pick_keys(msg, ["id", "sentiment"]))
+        # We send the sentiment to the sentiment_averager
+        self.sentiment_averager.send_json(self.pick_keys(msg, ["id", "sentiment"]))
         # We send the body to the decider that checks if it contains any relevant word
         # for our analysis
         self.student_decider.send_json(self.pick_keys(msg, ["id", "body"]))

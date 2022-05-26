@@ -16,7 +16,7 @@ class Joiner(BaseNode):
     def __init__(self, *args):
         super().__init__(*args)
         # Sockets
-        self.posts_filter = self.push_socket("posts_filter")
+        self.filterer = self.push_socket("filterer")
 
         # State
         self.posts = {}
@@ -27,4 +27,4 @@ class Joiner(BaseNode):
         self.posts.setdefault(msg["id"], {}).update(
             {k: v for k, v in msg.items() if k != "id"}
         )
-        self.posts_filter.send_json(self.posts[msg["id"]])
+        self.filterer.send_json(self.posts[msg["id"]])

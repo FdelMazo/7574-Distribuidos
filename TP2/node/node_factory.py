@@ -1,21 +1,21 @@
 from comments_worker import CommentsWorker
-from comments_averager import CommentsAverager
-from posts_max_sentiment import PostsMaxSentiment
+from sentiment_averager import SentimentAverager
 from image_streamer import ImageStreamer
-from posts_worker import PostsWorker
-from posts_averager import PostsAverager
-from posts_filter import PostsFilter
-from source import Source
 from joiner import Joiner
+from score_averager import ScoreAverager
+from filterer import Filterer
+from posts_worker import PostsWorker
+from source import Source
+from student_decider import StudentDecider
 
 NodeFactory = {
     "source": Source,
     "joiner": Joiner,
     "image_streamer": ImageStreamer,
     "posts_worker": PostsWorker,
-    "posts_averager": PostsAverager,
-    "posts_filter": PostsFilter,
+    "score_averager": ScoreAverager,
+    "sentiment_averager": SentimentAverager,
+    "filterer": Filterer,
     "comments_worker": CommentsWorker,
-    "comments_averager": CommentsAverager,
-    "posts_max_sentiment": PostsMaxSentiment,
+    "student_decider": StudentDecider,
 }

@@ -2,10 +2,10 @@ from base_node import BaseNode
 import random
 
 
-class PostsFilter(BaseNode):
+class Filterer(BaseNode):
     """
-    The PostsFilter node receives posts with different metadata and only pushes forward
-    those that meet different criteria. 
+    The Filterer node receives posts with different metadata and only pushes forward
+    those that meet different criteria.
 
     The current rules that it handles are:
     - Keep the student-liked posts which score is above average
@@ -13,6 +13,7 @@ class PostsFilter(BaseNode):
 
     This node keeps state and thus cannot be replicated
     """
+
     def __init__(self, *args):
         super().__init__(*args)
         # Sockets
