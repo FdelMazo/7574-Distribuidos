@@ -28,7 +28,6 @@ def main():
     node = NodeFactory[node_type](node_type, network_config)
 
     def shutdown():
-        logging.info("Shutting Down")
         node.shutdown()
 
     signal.signal(signal.SIGTERM, lambda _n, _f: shutdown())
