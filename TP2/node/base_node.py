@@ -19,12 +19,14 @@ class BaseNode:
 
         # We store every socket in self.sockets to easily shut them down later
         self.sockets = [self.recver]
+        self.msg_count = 0
         self.running = True
 
     def run(self):
         while self.running:
             try:
                 msg = self.recver.recv_json()
+                self.msg_count +=1
                 logging.debug(msg)
 
                 # Every child class must override the work method!
@@ -42,6 +44,7 @@ class BaseNode:
             socket.setsockopt(zmq.LINGER, 0)
             socket.close()
         self.context.term()
+        logging.info(f"Shutting Down: Processed {self.msg_count} messages")
         self.running = False
 
     def get_host(self, node_type):
