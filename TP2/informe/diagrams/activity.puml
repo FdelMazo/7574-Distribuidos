@@ -5,14 +5,12 @@ skinparam SwimlaneTitleBackgroundColor #EEE
 
 |Client|
 |Feeder|
-|Server|
 |Graph|
+|Server|
 
 |Feeder|
 start
 :Read & Send Line;
-|Server|
-:Dispatch to Graph;
 |Graph|
 :Process & Send Metrics;
 |Server|
