@@ -53,7 +53,7 @@ client_1              | * post_score_average: 1551.19
 ## Feeder
 
 El `Feeder` simplemente se encarga de leer los archivos `.csv` y enviar los datos fila a
-fila. Para simular un ambiente caótico, donde no sabemos que tipo de dato llega antes,
+fila. Para simular un ambiente caótico, donde no sabemos qué tipo de dato llega antes,
 el `Feeder` lee tanto del archivo de posts como del de comentarios y le envía eso al
 nodo `Source`. Esto se hace a un _endpoint_ único, en vez de a uno por cada tipo
 distinto de dato para que luego el grafo en sí sea el encargado de discriminar y 
@@ -61,8 +61,8 @@ organizar lo que le llegó, sin pre-procesamiento previo.
 
 ## Cliente y Servidor
 
-Del otro lado del sistema, alejandonos de como entraron y fueron procesados los datos,
-nos interesa saber como salirán. Lo que tenemos es, en una disposición `REQ` y `REP`
+Del otro lado del sistema, alejándonos de como entraron y fueron procesados los datos,
+nos interesa saber como saldrán. Lo que tenemos es, en una disposición `REQ` y `REP`
 bastante inocente, un cliente que cada unos segundos le preguntará a un servidor las
 métricas que tiene hasta el momento. Es decir, nunca esperamos a asegurarnos de que los
 archivos `.csv` fueron envíados en su totalidad, ya que en cualquier momento del
@@ -75,7 +75,7 @@ El servidor por lo tanto tiene dos funcionalidades:
 - Recibe las métricas finales del grafo, para saber que envíar al cliente cuando se lo solicite
  
 Es decir, en términos prácticos, el servidor también puede considerarse como parte del
-grafo, ya que actua del nodo `Collector` (o `Sink`) de este. De todas maneras, estas dos
+grafo, ya que actúa del nodo `Collector` (o `Sink`) de este. De todas maneras, estas dos
 funcionalidades las vamos a tratar como separadas, ya que a nivel teórico son dos
 componentes distintos del sistema.
 
@@ -92,13 +92,13 @@ Las métricas (actuales) son:
 
 - El promedio de _score_ de todos los posts procesados
 - La imagen más popular de acuerdo al sentimiento de los comentarios
-- Las URLs de posts relacionados a contenido de estudiantes y universidades, basandonos
+- Las URLs de posts relacionados a contenido de estudiantes y universidades, basándonos
   en el contenido de sus comentarios.
 
 Como podemos ver, se pueden dividir en dos tipos distintos de métricas: las que son
 cadenas planas (el promedio y las URLs), y las que son contenido en bytes (la imagen).
 
-Es por esto que hay que armar un (muy) pequeño protocolo de como el cliente recibe las
+Es por esto que hay que armar un (muy) pequeño protocolo de cómo el cliente recibe las
 métricas, de manera tal que puedan ser genéricas y no haga falta agregar código
 específico cada vez que introduzcamos métricas nuevas.
 
@@ -137,7 +137,7 @@ como `sum(<list>)` que son más costosos.
 Lo que podemos ver con este grafo de solo dos nodos es que tenemos dos tipos distintos 
 de nodos: \textcolor{orange}{los que deben guardar estado} y \textcolor{teal}{los que no}. 
 
-Los nodos que no deban llevar la cuenta de nada y sean _stateless_, son los que podrémos
+Los nodos que no deban llevar la cuenta de nada y sean _stateless_, son los que podremos
 escalar en nuestro sistema distribuido. Si yo me diese cuenta que tengo que procesar
 5000 posts por cada 1 comentario que ingresa en mi sistema final, entonces dedicaría más
 recursos a `PostsWorker` que al nodo que se encargue de trabajar en comentarios. Para
@@ -145,7 +145,7 @@ lograr esto tenemos que tener una disposición de la red que nos permita que las
 instancias de mi nodo escalable trabajen en paralelo, agarrando trabajos disponibles
 desde la misma cola de tareas.
 
-Por otro lado, los nodos que si tengan estado (llevar cuenta de un promedio, mantener en
+Por otro lado, los nodos que sí tengan estado (llevar cuenta de un promedio, mantener en
 memoria algún atributo en particular, etc) son los que deben ser únicos, y así 
 ahorrarnos los problemas de sincronización, usando la filosofía de 
 [ZeroMQ](https://zguide.zeromq.org/docs/chapter2/#Multithreading-with-ZeroMQ) de ``Share
@@ -217,19 +217,19 @@ Los nodos finales son:
 
 - `PostsWorker` y `CommentsWorker`: Reciben un post o comentario y envían a los
   siguientes trabajadores exactamente los atributos que necesitan. También pueden
-  aplicar algun pre-procesamiento necesario a los atributos que lo necesiten, o filtrar
-  los datos que consideremos invalidos para todo el resto del sistema.
+  aplicar algún pre-procesamiento necesario a los atributos que lo necesiten, o filtrar
+  los datos que consideremos inválidos para todo el resto del sistema.
   
   Estos dos nodos funcionan como un despachador que minimiza el payload (al no enviar
-  los atributos que nos sobran) con el que trabajara el resto del grafo, así logrando
+  los atributos que nos sobran) con el que trabajará el resto del grafo, así logrando
   transportar la menor cantidad de información posible en la red.
 
-  De necesitar más poder de computo para procesar posts o comentarios, estos nodos se
+  De necesitar más poder de cómputo para procesar posts o comentarios, estos nodos se
   pueden replicar ya que sus instancias reciben trabajo de la misma cola.
 
 - `ScoreAverager` y `SentimentAverager`: Estos dos nodos mantienen registro de los
   distintos datos que se van recibiendo, y calculan el promedio según atributos. Si bien
-  ambos calculan promedios y a simple vista podrían ser abstraidos al mismo nodo, el
+  ambos calculan promedios y a simple vista podrían ser abstraídos al mismo nodo, el
   promediado de _scores_ recibe posts, mientras que el de _sentiment_ recibe
   comentarios, por lo que cumplen distintas funciones dentro del sistema.
 
@@ -244,7 +244,7 @@ Los nodos finales son:
   interesan, preferimos reducir el tráfico de la red y solo empujar los posts que no nos
   hayamos cruzado previamente, evitando envíar duplicados. El trade-off es que este nodo
   no puede ser escalable. Alternativamente, aún siendo _stateful_ se podría replicar y 
-  hacer que cada replica mantenga su propia lista de posts, haciendo que se reduzca el 
+  hacer que cada réplica mantenga su propia lista de posts, haciendo que se reduzca el 
   envío de datos duplicados, sin mitigarse del todo, pero así perdemos nuestro principio
   de que solo queremos replicar nodos _stateless_ (lo cual es una decisión, no
   necesariamente una restricción).
@@ -253,7 +253,7 @@ Los nodos finales son:
   que se encargan de hacer el unido y filtrado. Lo que se decide es que el `Joiner`
   puede a todo momento recibir un post con distintos atributos, desde cualquier nodo del
   sistema, y actualiza su estado interno para mantener registro de los nuevos atributos
-  recibidos. Luego, se le pasa esto al filtrador, que esta cargado de lógica para
+  recibidos. Luego, se le pasa esto al filtrador, que está cargado de lógica para
   decidir en base a los distintos atributos cuales deben seguir su rumbo para proveer
   las distintas métricas.
 
