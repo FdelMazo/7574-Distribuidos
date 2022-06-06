@@ -1,12 +1,13 @@
 @startuml
-!theme minty
+!theme sandstone
 
 skinparam PartitionFontColor black
-skinparam LegendFontColor black
+skinparam PartitionBorderColor black
 skinparam ArrowFontColor black
+skinparam LegendFontColor black
+skinparam legendbackgroundcolor transparent
 skinparam NoteBackgroundColor lemonchiffon
 skinparam NoteFontColor black
-skinparam legendbackgroundcolor transparent
 
 partition "Return the average post score" {
   start
@@ -16,7 +17,7 @@ partition "Return the average post score" {
     grab the post score
   endnote
   -> ...( score )...;
-  #ff8662 :ScoreAverager; 
+  #f47c3c :ScoreAverager; 
   note right
     keep track of count and sum
   endnote
@@ -25,8 +26,8 @@ partition "Return the average post score" {
 
   legend bottom right
       |= |Worker Type|
-      |<#56cc9d>| Stateless & Scalable|
-      |<#ff8662>| Stateful & Unique|
+      |<#325d88>| Stateless & Scalable|
+      |<#f47c3c>| Stateful & Unique|
   endlegend
 }
 @enduml

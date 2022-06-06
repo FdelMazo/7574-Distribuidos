@@ -1,11 +1,12 @@
 @startuml
-!theme minty
+!theme sandstone
 skinparam swimlanetitlefontcolor black
+skinparam SwimlaneTitleBackgroundColor #EEE
 
-|#EDFDFD|Client|
-|#F0FFF4|Feeder|
-|#FFF5F5|Server|
-|#FFFAF0|Graph|
+|Client|
+|Feeder|
+|Server|
+|Graph|
 
 |Feeder|
 start

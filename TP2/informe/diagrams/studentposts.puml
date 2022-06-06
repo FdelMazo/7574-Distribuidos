@@ -1,17 +1,14 @@
 @startuml
-!theme minty
+!theme sandstone
 
 skinparam PartitionFontColor black
+skinparam PartitionBorderColor black
+skinparam ArrowFontColor black
 skinparam LegendFontColor black
-skinparam ArrowFontColor black
-skinparam NoteBackgroundColor lemonchiffon
-skinparam NoteFontColor black
 skinparam legendbackgroundcolor transparent
-
-skinparam ArrowFontColor black
+skinparam ConditionEndStyle hline
 skinparam NoteBackgroundColor lemonchiffon
 skinparam NoteFontColor black
-skinparam ConditionEndStyle hline
 
 partition "Return URLs of student-liked posts (w/good score)" {
   start
@@ -20,7 +17,7 @@ partition "Return URLs of student-liked posts (w/good score)" {
   if (type) then (post)
     :PostsWorker;
     -> ...( id,score,permalink )...;
-    #ff8662 :ScoreAverager; 
+    #f47c3c :ScoreAverager; 
     note left
       only push out posts with 
       score greater than avg
@@ -28,20 +25,20 @@ partition "Return URLs of student-liked posts (w/good score)" {
   else (comment)
     :CommentsWorker;
     -> ...( post_id,body )...;
-   #ff8662 :StudentDecider;
+   #f47c3c :StudentDecider;
     note right
       push student-related only
     endnote
   endif
     -> --> ...( id,permalink )... \n            ( id ) <--;
-  #ff8662 :Joiner<
+  #f47c3c :Joiner<
   -> (permalink);
   stop
 
   legend bottom right
       |= |Worker Type|
-      |<#56cc9d>| Stateless & Scalable|
-      |<#ff8662>| Stateful & Unique|
+      |<#325d88>| Stateless & Scalable|
+      |<#f47c3c>| Stateful & Unique|
   endlegend
 }
 
