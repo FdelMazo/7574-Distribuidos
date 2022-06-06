@@ -23,8 +23,10 @@ class Server:
         self.pull_socket = self.context.socket(zmq.PULL)
         self.pull_socket.bind(f"tcp://*:{pull_port}")
 
-        # Our metrics are a simple dict that we can send as a json through the network
+        # Our metrics are a simple (thread-safe) dict that we can send as a json
         self.metrics = {}
+        self.metrics_lock = threading.Lock()
+
         self.is_shutdown = threading.Event()
 
     def start(self):
@@ -46,7 +48,8 @@ class Server:
             try:
                 msg = self.reply_socket.recv_string()
                 logging.debug(msg)
-                self.reply_socket.send_json(self.metrics)
+                with self.metrics_lock:
+                    self.reply_socket.send_json(self.metrics)
             except zmq.ZMQError as e:
                 # If we are on a "Socket operation on non-socket" or on a
                 # "Context was terminated" error and we are not running anymore, that
@@ -80,11 +83,12 @@ class Server:
                 else:
                     logging.debug(msg)
 
-                self.metrics[msg["metric_name"]] = {
-                    # We store the whole message except for the 'metric_name' which now
-                    # serves as the dict key
-                    k: v for k, v in msg.items() if k != "metric_name"
-                }
+                with self.metrics_lock:
+                    self.metrics[msg["metric_name"]] = {
+                        # We store the whole message except for the 'metric_name' which now
+                        # serves as the dict key
+                        k: v for k, v in msg.items() if k != "metric_name"
+                    }
             except zmq.ZMQError as e:
                 # If we are on a "Socket operation on non-socket" or on a
                 # "Context was terminated" error and we are not running anymore, that
