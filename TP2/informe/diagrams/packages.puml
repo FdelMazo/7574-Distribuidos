@@ -1,19 +1,18 @@
 @startuml
-!theme minty
+!theme sandstone
 
 skinparam packagebackgroundcolor transparent
 skinparam CloudBackgroundColor transparent
-skinparam CloudBorderColor green
+skinparam CloudBorderColor #29abe0
 skinparam Cloudfontsize 16
-skinparam CollectionsBackgroundColor #6cc3d5
-skinparam CollectionsBorderColor #343a40
+skinparam CollectionsBackgroundColor #29abe0
 skinparam actorbackgroundcolor transparent
 skinparam actorfontcolor black
 skinparam ArrowThickness 1
-skinparam Packageborderthickness 2
+skinparam Packageborderthickness 1
 skinparam filebackgroundcolor transparent
 skinparam filefontcolor black
-skinparam filebordercolor #56cc9d
+skinparam filebordercolor #29abe0
 
 
 package "Graph" {

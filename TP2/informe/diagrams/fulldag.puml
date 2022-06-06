@@ -1,34 +1,32 @@
 @startuml
-!theme minty
-skinparam arrowfontcolor black
-skinparam actorbackgroundcolor transparent
-skinparam actorfontcolor black
-skinparam legendbackgroundcolor transparent
-skinparam filebordercolor #56cc9d
-skinparam filebackgroundcolor transparent
-skinparam legendfontcolor black
+!theme sandstone
 
-<style>
-startsty {
-  BackgroundColor #6cc3d5
-}
-</style>
+skinparam PartitionFontColor black
+skinparam PartitionBorderColor black
+skinparam ArrowFontColor black
+skinparam LegendFontColor black
+skinparam legendbackgroundcolor transparent
+skinparam ConditionEndStyle hline
+skinparam NoteBackgroundColor lemonchiffon
+skinparam NoteFontColor black
+skinparam filebordercolor transparent
+skinparam filebackgroundcolor transparent
 
 file {
   interface start #black [
   ]
-  stack Collector #f3969a [
+  stack Collector #d9534f [
   Collector
   ]
-  card Source #56cc9d
-  card PostsWorker #56cc9d
-  card CommentsWorker #56cc9d
-  card ImageStreamer #56cc9d
-  card ScoreAverager #ff8662
-  card SentimentAverager #ff8662
-  hexagon Joiner #ff8662
-  card Filterer #ff8662
-  card StudentDecider #ff8662
+  card Source #325d88
+  card PostsWorker #325d88
+  card CommentsWorker #325d88
+  card ImageStreamer #325d88
+  card ScoreAverager #f47c3c
+  card SentimentAverager #f47c3c
+  hexagon Joiner #f47c3c
+  card Filterer #f47c3c
+  card StudentDecider #f47c3c
 
   start -down-> Source: post or comment
   Source -down-> PostsWorker: post
@@ -49,8 +47,8 @@ file {
 
 legend bottom right
     |= |Worker Type|
-    |<#56cc9d>| Stateless & Scalable|
-    |<#ff8662>| Stateful & Unique|
+    |<#325d88>| Stateless & Scalable|
+    |<#f47c3c>| Stateful & Unique|
 endlegend
 
 @enduml

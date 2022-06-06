@@ -1,5 +1,5 @@
 @startuml
-!theme minty
+!theme sandstone
 
 skinparam rectanglebackgroundcolor transparent
 skinparam rectanglefontcolor black
