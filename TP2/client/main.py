@@ -43,7 +43,7 @@ def main():
 
         # The metrics in our dict can be plain strings or encoded ones
         # If the metric is encoded, it will provide the optional 'metric_encoded'
-        # boolean in the dict.
+        # boolean in the dict
         # The encoded strings are bytes encoded into base64 and then decoded as ascii,
         # to have them as strings instead of bytestrings which can be easily sent
         # inside the dict
@@ -65,6 +65,13 @@ def main():
             else:
                 # If the metric is not encoded, we simply print it out
                 print(f"* {metric_name}: {metric['metric_value']}")
+
+        # If the metric contains the 'metric_final' attribute, that means that the
+        # server won't send us any new updates after this and we can safely shut down
+        # the client
+        if len(reply) and all(metric.get("metric_final") for metric in reply.values()):
+            print("All metrics are final => Shutting Down")
+            break
 
         # Ask again in a few seconds!
         # (This should probably be configurable...)
