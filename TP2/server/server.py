@@ -29,6 +29,11 @@ class Server:
 
         self.is_shutdown = threading.Event()
 
+        # After getting an EOF, we want to have a grace window for receiving any metrics
+        # still being processed. If we don't receive any kind of message after that
+        # window, we can stop listening from the pull socket
+        self.timeout = int(network_config["server_ms_timeout"])
+
     def start(self):
         # As we don't need 'real' parallelism for this two tasks, we use threads instead of processes
         self.reply_loop = threading.Thread(target=self.reply_loop)
@@ -63,18 +68,24 @@ class Server:
     def pull_loop(self):
         """
         This loop constantly pulls metrics from the PULL socket and updates the
-        self.metrics dictionary, serving as the final sink of the DAG. 
+        self.metrics dictionary, serving as the final sink of the DAG.
 
         Metrics consists of a name, a value, and an optional 'metric_encoded' boolean
         that indicates that the value is a base64 encoded string.
 
-        We currently don't have any special restriction on the request, it can be any
-        string whatsoever.
+        This loop also has a direct connection to the source, (or whomever is
+        responsible of giving the final say) to see if we should stop listening for new
+        metrics and treat what we have as final values. That is specified by receiving a
+        json message formatted as {'type': 'EOF'}
         """
 
         while not self.is_shutdown.is_set():
             try:
                 msg = self.pull_socket.recv_json()
+                if msg.get("type") == "EOF":
+                    logging.info(f"Got EOF => Setting {self.timeout}ms timeout window")
+                    self.pull_socket.setsockopt(zmq.RCVTIMEO, self.timeout)
+                    continue
 
                 # If the metric is encoded we don't want to log it, as it will be a big
                 # blob of base64 data that will clutter the whole log
@@ -87,9 +98,21 @@ class Server:
                     self.metrics[msg["metric_name"]] = {
                         # We store the whole message except for the 'metric_name' which now
                         # serves as the dict key
-                        k: v for k, v in msg.items() if k != "metric_name"
+                        k: v
+                        for k, v in msg.items()
+                        if k != "metric_name"
                     }
             except zmq.ZMQError as e:
+                # If our socket timed-out, that means we got an `EOF` message that set
+                # the timeout window. We can safely assume this error means our metrics
+                # are final and we can exit our loop
+                if e.errno == zmq.EAGAIN:
+                    logging.info(f"Timed-out after EOF => Setting metrics as final")
+                    with self.metrics_lock:
+                        for k in self.metrics:
+                            self.metrics[k].update({"metric_final": True})
+                    break
+
                 # If we are on a "Socket operation on non-socket" or on a
                 # "Context was terminated" error and we are not running anymore, that
                 # means we called shutdown() and we can safely break our while loop

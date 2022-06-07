@@ -5,7 +5,7 @@ import signal
 import csv
 import zmq
 import random
-
+import time
 
 def main():
     """
@@ -77,8 +77,12 @@ def main():
             # - End of file for both csvs
             if not comments_row and not posts_row:
                 break
+        # Wait a bit before shutting down
+        time.sleep(5)
 
     print(f"Finished sending {i+j} lines from {posts_file} and {comments_file}")
+    print(f"Sending EOF")
+    socket.send_json({'type': 'EOF'})
 
     socket.setsockopt(zmq.LINGER, 0)
     socket.close()

@@ -59,6 +59,11 @@ nodo `Source`. Esto se hace a un _endpoint_ único, en vez de a uno por cada tip
 distinto de dato para que luego el grafo en sí sea el encargado de discriminar y 
 organizar lo que le llegó, sin pre-procesamiento previo.
 
+Luego de envíar los datos, el `Feeder` tiene que notificar que terminó la simulación de
+streaming, y envía el mensaje especial de end of file: `{'type': 'EOF'}`. Al recibir
+este mensaje, el sistema sabe que no tiene que procesar cualquier dato nuevo que llegue,
+y que las métricas que contiene actualmente son las últimas.
+
 ## Cliente y Servidor
 
 Del otro lado del sistema, alejándonos de como entraron y fueron procesados los datos,
@@ -107,6 +112,7 @@ específico cada vez que introduzcamos métricas nuevas.
     [nombre] <string>: {
         'metric_value': [valor] <string>
         'metric_encoded': [indicador] <booleano opcional>
+        'metric_final': [indicador] <booleano opcional>
     }
 }
 ```
@@ -115,6 +121,10 @@ La clave `'metric_encoded'` es opcional e indica que `'metric_value'` contiene u
 cadena codificada en base 64. De suceder esto, el cliente recibe esa cadena, la
 decodifica y la guarda en un archivo. En caso de la métrica sea una cadena plana, 
 simplemente se imprime por pantalla.
+
+La clave `'metric_final'` indica que el servidor termino de procesar las métricas y no
+aceptará nuevos datos, avisando que el cliente ya no va a recibir nuevos valores (y
+puede cerrarse, ya que no tiene propósito de seguir corriendo).
 
 ![Posibles casos de uso](./informe/diagrams/usecase.png){ width=175 }
 
@@ -214,6 +224,9 @@ Los nodos finales son:
   Podría ser escalable ya que no tiene estado, aunque no es aconsejable, ya
   que tenemos un control más granular al escalar los workers dedicados a posts y 
   comentarios por separado.
+
+  Tiene una conexión directa con el `Collector`, para avisarle que recibió un mensaje de
+  `EOF` y que debe marcar a las métricas que tiene como finales.
 
 - `PostsWorker` y `CommentsWorker`: Reciben un post o comentario y envían a los
   siguientes trabajadores exactamente los atributos que necesitan. También pueden
