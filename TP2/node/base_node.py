@@ -19,14 +19,28 @@ class BaseNode:
 
         # We store every socket in self.sockets to easily shut them down later
         self.sockets = [self.recver]
+
+        # We keep track of how many messages this node processed
+        # We log the total number of messages on shutdown, and we also log them every
+        # time the number reaches a certain breakpoint (which then increases by a factor
+        # of 5) as a simple health check
         self.msg_count = 0
+        self.msg_breakpoint = 1
+
         self.running = True
 
     def run(self):
         while self.running:
             try:
                 msg = self.recver.recv_json()
-                self.msg_count +=1
+                self.msg_count += 1
+                if self.msg_count == self.msg_breakpoint:
+                    # logging.info(f"{self.node_type} vivito y coleando!")
+                    logging.info(
+                        f"{self.node_type} alive and well! Processed {self.msg_count} messages (so far)"
+                    )
+                    self.msg_breakpoint *= 5
+
                 logging.debug(msg)
 
                 # Every child class must override the work method!
