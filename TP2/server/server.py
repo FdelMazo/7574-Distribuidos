@@ -56,7 +56,7 @@ class Server:
                 # means we called shutdown() and we can safely break our while loop
                 if (
                     e.errno == zmq.ENOTSOCK or e.errno == zmq.ETERM
-                ) and not self.running:
+                ) and self.is_shutdown.is_set():
                     break
                 raise e
 
@@ -95,7 +95,7 @@ class Server:
                 # means we called shutdown() and we can safely break our while loop
                 if (
                     e.errno == zmq.ENOTSOCK or e.errno == zmq.ETERM
-                ) and not self.running:
+                ) and self.is_shutdown.is_set():
                     break
                 raise e
 
