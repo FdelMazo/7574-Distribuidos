@@ -294,3 +294,42 @@ posts_worker_1        | {'type': 'post', 'id': 'ttd0r4', 'subreddit.id': '2s5ti'
 comments_worker_1     | {'type': 'comment', 'id': 'i2x2j0g', 'subreddit.id': '2s5ti', 'subreddit.name': 'meirl', 'subreddit.nsfw': 'false', 'created_utc': '1648771186', 'permalink': 'https://old.reddit.com/r/meirl/comments/tswh3j/meirl/i2x2j0g/', 'body': 'Yes', 'sentiment': '', 'score': '1'}
 # ... etcetera
 ```
+
+## Finalización
+
+El sistema de nodos no finaliza nunca per se, (obviando que se le envíe un `SIGTERM`). 
+Esto es porque está originalmente pensado para procesar constantemente datos en 
+streaming, y teniendo que mantener métricas constantemente en memoria para poder ir
+actualizándolas (o, en una mejora del programa, persistirlas de alguna forma).
+
+Siguiendo esta linea, el servidor tampoco nunca finaliza, dejándolo prendido por si
+algún otro cliente se le quisiese conectar y pedir métricas (aunque habría que
+implementar una funcionalidad de descongelamiento de las métricas, ya que una vez que
+terminó de procesar todo el dataset, las métricas quedarán marcadas como finalizadas).
+De todas formas, finalizarlo es trivial, nada mas terminamos el _handshake_ del
+cliente-servidor: una vez que el cliente solicita las métricas y recibe que están
+finalizadas, justo antes de cerrarse, le envía un comando de `/shutdown` al servidor
+avisándole que puede finalizar su ejecución.
+
+Ahora bien... ¿cómo se podría implementar la finalización del grafo, una vez recibido el
+`EOF` del dataset?
+
+Originalmente pensé que una vez que el nodo `Source` recibe un `EOF`, puede replicar el 
+mensaje a todas sus colas de salida, para que los nodos que lean de ahí puedan tomar ese
+mensaje y replicarlo nuevamente y así ir lentamente propagando el mensaje de `EOF` para
+que todos los nodos del sistema vayan finalizando su ejecución.
+
+El problema con esto es que con la implementación de `PUSH`/`PULL` actual, de tener
+algún nodo replicado, solo una de las N replicas recibirá el mensaje de finalización,
+dejando nodos levantados colgados, sin nunca finalizar.
+
+La manera de mitigar este problema es utilizando un patrón de `PUB`/`SUB` específico 
+para este tipo de mensajes, ya que el `PUB` si permite hacer un _broadcast_ a todos sus
+lectores, a diferencia del `PUSH`.
+
+Otra idea a considerar, pero se siente una implementación bastante frágil, es ponerle a
+cada nodo un _timeout_ interno que diga que si en N segundos no recibieron un mensaje,
+pueden finalizar su ejecución. Esto no es conveniente porque no hay ninguna acción
+afirmativa que llame al finalizado, haciendo que esto no sea controlado (a diferencia de
+la idea anterior, donde se debe mandar un mensaje de `EOF` que comience la cascada de
+terminaciones).
