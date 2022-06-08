@@ -8,7 +8,7 @@ son provistas al cliente del sistema en formato JSON.
 
 Para simular la entrada de datos (posts y comentarios) y poder controlar el resultado, 
 la entrada del sistema es en forma de un archivo `.csv` fijo para los posts y otro para
-los comentarios. Estos archivos son leídos y cada fila en ellos es envíada al sistema
+los comentarios. Estos archivos son leídos y cada fila en ellos es enviada al sistema
 por un `Feeder`.
 
 Los datos son luego procesados por un conjunto de nodos conectados entre sí, en forma de
@@ -59,7 +59,7 @@ nodo `Source`. Esto se hace a un _endpoint_ único, en vez de a uno por cada tip
 distinto de dato para que luego el grafo en sí sea el encargado de discriminar y 
 organizar lo que le llegó, sin pre-procesamiento previo.
 
-Luego de envíar los datos, el `Feeder` tiene que notificar que terminó la simulación de
+Luego de enviar los datos, el `Feeder` tiene que notificar que terminó la simulación de
 streaming, y envía el mensaje especial de end of file: `{'type': 'EOF'}`. Al recibir
 este mensaje, el sistema sabe que no tiene que procesar cualquier dato nuevo que llegue,
 y que las métricas que contiene actualmente son las últimas.
@@ -70,14 +70,14 @@ Del otro lado del sistema, alejándonos de como entraron y fueron procesados los
 nos interesa saber como saldrán. Lo que tenemos es, en una disposición `REQ` y `REP`
 bastante inocente, un cliente que cada unos segundos le preguntará a un servidor las
 métricas que tiene hasta el momento. Es decir, nunca esperamos a asegurarnos de que los
-archivos `.csv` fueron envíados en su totalidad, ya que en cualquier momento del
+archivos `.csv` fueron enviados en su totalidad, ya que en cualquier momento del
 trayecto el sistema ya tiene datos que nos interesan (que más tarde serán pisados por
 datos actualizados).
 
 El servidor por lo tanto tiene dos funcionalidades:
 
 - Escucha _requests_ del cliente, para saber cuando debe retornar métricas
-- Recibe las métricas finales del grafo, para saber que envíar al cliente cuando se lo solicite
+- Recibe las métricas finales del grafo, para saber que enviar al cliente cuando se lo solicite
  
 Es decir, en términos prácticos, el servidor también puede considerarse como parte del
 grafo, ya que actúa del nodo `Collector` (o `Sink`) de este.
@@ -180,7 +180,7 @@ posibles, por lo que tiene sentido que el `Filterer` venga antes.
 ### Posts que más gustan a estudiantes
 
 La última métrica a devolver es bastante similar a la anterior, juntando datos tanto de
-los posts como de los comentarios. Lo que incluímos acá es que tenemos dos filtros. Por
+los posts como de los comentarios. Lo que incluimos acá es que tenemos dos filtros. Por
 un lado, queremos filtrar los posts que incluyen contenido de estudiantes, y por el
 otro, queremos filtrar los posts con score mayor al promedio.
 
@@ -245,7 +245,7 @@ Los nodos finales son:
   comentarios, por lo que cumplen distintas funciones dentro del sistema.
 
 - `ImageStreamer`: Este nodo simplemente recibe una URL, intenta descargar su contenido
-  y envuelve sus bytes en un string para poder envíar la métrica al colector.
+  y envuelve sus bytes en un string para poder enviar la métrica al colector.
 
 - `StudentDecider`: Este nodo recibe comentarios y determina si un post es relevante de
   acuerdo al contenido de cada comentario, y luego solo empuja los posts relevantes.
@@ -270,7 +270,7 @@ Los nodos finales son:
 
 El nodo final del sistema es el `Collector`, que se ejecuta en el servidor. Simplemente 
 recibe métricas que le puede pasar cualquier nodo en cualquier momento de la ejecución,
-y las guarda para envíarlas al cliente cuando las solicite.
+y las guarda para enviarlas al cliente cuando las solicite.
 
 Siendo que cada nodo (sin contar el `Collector`) actúa de manera bastante parecida 
 (levantar un dato de una cola, procesarlo, y empujarlo a la siguiente), se abstrae esta
