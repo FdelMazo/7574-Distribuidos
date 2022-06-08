@@ -49,6 +49,8 @@ client_1              | Got some stuff from the server!
 client_1              | * post_score_average: 1551.19
 ```
 
+![Robustez](./informe/diagrams/robustness.png)
+
 
 ## Feeder
 
