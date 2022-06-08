@@ -18,9 +18,7 @@ skinparam filebordercolor #29abe0
 package "Graph" {
   collections nodes
   card Source
-  card Collector
   Source -right-> nodes
-  nodes -right-> Collector
 }
 
 actor User
@@ -35,7 +33,7 @@ package "Query" {
   Server <---right---> Client
 }
 
-Collector -up-> Server
+nodes -up-> Server
 Client --right--> User
 
 @enduml

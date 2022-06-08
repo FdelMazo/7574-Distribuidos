@@ -13,12 +13,12 @@ por un `Feeder`.
 
 Los datos son luego procesados por un conjunto de nodos conectados entre sí, en forma de
 grafo acíclico. El grafo tiene un punto de entrada (el nodo `Source`) y un punto de
-salida (el nodo `Collector`) donde se van depositando las métricas analizadas, y varios
-nodos en el medio que son los encargados de filtrar, reducir, agregar y operar
-sobre los datos que van entrando al sistema.
+salida (el `Collector`, el cual es un hilo dentro del servidor) donde se van depositando
+las métricas analizadas, y varios nodos en el medio que son los encargados de filtrar,
+reducir, agregar y operar sobre los datos que van entrando al sistema.
 
 En cualquier momento de la ejecución, un cliente (`Client`) puede conectarse y hablar 
-con un servidor (`Server`), el cual provee las métricas recolectadas hasta el momento 
+con el servidor (`Server`), el cual provee las métricas recolectadas hasta el momento
 del pedido.
 
 ![Paquetes del sistema](./informe/diagrams/packages.png){ width=400 }
@@ -80,9 +80,7 @@ El servidor por lo tanto tiene dos funcionalidades:
 - Recibe las métricas finales del grafo, para saber que envíar al cliente cuando se lo solicite
  
 Es decir, en términos prácticos, el servidor también puede considerarse como parte del
-grafo, ya que actúa del nodo `Collector` (o `Sink`) de este. De todas maneras, estas dos
-funcionalidades las vamos a tratar como separadas, ya que a nivel teórico son dos
-componentes distintos del sistema.
+grafo, ya que actúa del nodo `Collector` (o `Sink`) de este.
 
 ![Entrada de datos y pedido de métricas](./informe/diagrams/activity.png){ width=450 }
 
