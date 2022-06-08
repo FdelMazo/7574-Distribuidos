@@ -283,7 +283,7 @@ comportamiento, levantando datos de un socket `zmq.PULL` y empujando a un socket
 De querer ver todo el tráfico de mensajes que atraviesa nuestro grafo, podemos
 configurar el nivel de logueo en el archivo `config.ini` para que sea `DEBUG`
 
-![Grafo de [ZMQ](https://zguide.zeromq.org/docs/chapter1/#Divide-and-Conquer)](https://zguide.zeromq.org/images/fig5.png){width=200}
+![Despliegue del DAG](./informe/diagrams/deployment.png)
 
 ```zsh
 $ make run TEST_LINES=3
