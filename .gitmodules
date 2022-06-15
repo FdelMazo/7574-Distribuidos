@@ -1,0 +1,3 @@
+[submodule "DynamoDB-Paper"]
+	path = DynamoDB-Paper
+	url = git@github.com:FdelMazo/DynamoDB-Paper.git
