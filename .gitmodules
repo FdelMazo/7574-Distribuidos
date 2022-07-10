@@ -1,3 +1,6 @@
 [submodule "DynamoDB-Paper"]
 	path = DynamoDB-Paper
 	url = git@github.com:FdelMazo/DynamoDB-Paper.git
+[submodule "TP-Grupal"]
+	path = TP-Grupal
+	url = git@github.com:CrossNox/7574-TP3.git
